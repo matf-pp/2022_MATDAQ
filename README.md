@@ -1,0 +1,2 @@
+# 2022_MATDAQ
+Ideja je da implementiramo berzu (stock exchange). Kako bismo smanjili scope projekta akcenat ćemo staviti na Matching Engine koji ćemo implementirati u Rust-u i na konzolni interfejs (TUI) pisan u Go-u. Izabrali smo različite jezike za klijent i server kako bismo ilustrovali univerzalnost IPC-a koji se ostvaruje pomoću biblioteke zeromq. Podatke ćemo nabavljati pomoću javno dostupnih API-a.

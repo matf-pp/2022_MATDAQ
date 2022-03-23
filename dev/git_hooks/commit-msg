@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+HOOKS_DIR="./dev/git_hooks"
+
+"${HOOKS_DIR}/commit_message_format.py" $1
+if [ $? = 1 ]; then
+    exit 1    
+fi
+

@@ -57,7 +57,7 @@ def verifyMessage(path: str) -> bool:
 
 if __name__ == '__main__':
     try:
-        assert len(sys.argv) != 2, 'This file should only be called as a commit-msg hook in Git'
+        assert len(sys.argv) == 2, 'This file should only be called as a commit-msg hook in Git'
 
         path = sys.argv[1]
 

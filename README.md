@@ -1,2 +1,27 @@
 # 2022_MATDAQ
-Ideja je da implementiramo berzu (stock exchange). Kako bismo smanjili scope projekta akcenat ćemo staviti na Matching Engine koji ćemo implementirati u Rust-u i na konzolni interfejs (TUI) pisan u Go-u. Izabrali smo različite jezike za klijent i server kako bismo ilustrovali univerzalnost IPC-a koji se ostvaruje pomoću biblioteke zeromq. Podatke ćemo nabavljati pomoću javno dostupnih API-a.
+
+## About
+
+- MATDAQ is a stock exchange system developed in Rust and Go
+
+## Dev setup
+
+### Prerequisites
+
+- TODO: add specific Rust and Go versions
+
+### Setup
+
+- Navigate to the `dev` folder and run the setup script in order to properly configure your environment 
+
+```bash
+   $ cd dev 
+   $ ./setup.sh
+```
+- Currently developed only on `Linux`
+
+## Developers
+
+- [Aleksandar Šmigić](https://github.com/smiga287)
+- [Dimitrije Marković](https://github.com/dimitrijemarkovic)
+- [Ilija Stojanović](https://github.com/ilija-s)

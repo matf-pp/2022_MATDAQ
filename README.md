@@ -2,7 +2,7 @@
 
 ## About
 
-- MATDAQ is a stock exchange system developed in Rust and Go
+- MATDAQ is a stock exchange system developed in Rust and Go!
 
 ## Dev setup
 

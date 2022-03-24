@@ -30,7 +30,7 @@
 ## Workflow example
 
 - Typical workflow example when you are creating a new feature/fix:
-  ```bash
+```bash
 $ git checkout main
 $ git pull  
 $ git checkout -b branch_name
@@ -40,7 +40,7 @@ $ gh pr create
 TODO: add the rest when you fix writing permissions with Ivan
 # your code should be reviewed by a colleague before getting merged into main
 # hint: you can assign reviewers
-  ```
+```
 
 ## Git hooks
 ### Automatic commit message formatter and sanitizer

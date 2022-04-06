@@ -13,8 +13,9 @@
       $ make pd
     ```
 - In case you need more granular control
-  - Use the following command for building
+  - Use the following command for clearing old build files and building new ones
     ```bash
+      $ make clean
       $ make build
     ```
   - Use the following command for running the binaries without worrying about whether they need to be rebuilt 

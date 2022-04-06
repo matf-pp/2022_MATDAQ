@@ -40,6 +40,7 @@ client
 │   └── request-creator/
 │       └── main.go
 ├── pkg/
+│   └── README.md
 ├── go.mod
 ├── Makefile
 └── README.md

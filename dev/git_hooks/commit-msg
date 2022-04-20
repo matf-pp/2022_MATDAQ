@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 HOOKS_DIR="./dev/git_hooks"
 

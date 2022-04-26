@@ -46,6 +46,7 @@ type orderType struct {
 	description string
 }
 
+// retuns empty string because we dont search on OrderType value
 func (ot orderType) FilterValue() string {
 	return ""
 }

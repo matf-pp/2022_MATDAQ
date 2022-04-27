@@ -72,7 +72,6 @@ type Model struct {
 }
 
 func New() Model {
-	// TODO: refactor this into multiple files so its not messy
 	// list of stocks, later this will be loaded from some API, or stored in a file
 	stocks := []list.Item{
 		stock{title: "AAPL", description: "Apple stock"},
@@ -99,6 +98,7 @@ func New() Model {
 	}
 
 	l := list.New(stocks, list.NewDefaultDelegate(), 0, 0)
+	l.DisableQuitKeybindings()
 	l.Title = "Stocks"
 	l.SetShowStatusBar(false)
 

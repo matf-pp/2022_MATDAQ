@@ -53,6 +53,19 @@ func (m *Model) nextField(forward bool) {
 	}
 }
 
+func (m *Model) resetState() {
+	m.blurAllFields()
+	m.list.ResetSelected()
+	m.stockChoice = ""
+	m.orderType.ResetSelected()
+	m.orderTypeChoice = ""
+	m.side.ResetSelected()
+	m.sideChoice = ""
+	m.amount.Reset()
+	m.price.Reset()
+	m.list.FilterInput.Focus()
+}
+
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
@@ -71,20 +84,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		// TODO: if we press enter and current field is amount we should send an order
-		// implement better logic for moving through fields
 		case "enter":
 			if m.state == FocusSendOrder {
-				// IMPLEMENT: SEND ORDER AND RESET FIELDS
-				// here we take all inputs and send them to order-request-service
+				// TODO: IMPLEMENT SEND ORDER
+				m.resetState()
 			} else if m.state == FocusSelectStock {
 				m.switchWindow()
-				// we dont need to do this here actually
-				s, ok := m.list.SelectedItem().(stock)
-				// we would need to use stock ID instead of title
-				if ok {
-					m.stockChoice = string(s.title)
-				}
 			}
 		case "tab":
 			m.nextField(true)

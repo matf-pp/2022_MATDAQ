@@ -2,6 +2,7 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	order_request "github.com/matf-pp/2022_MATDAQ/internal/request-creator/order-request"
 )
 
 func (m *Model) blurAllFields() {
@@ -10,6 +11,7 @@ func (m *Model) blurAllFields() {
 	m.side.FilterInput.Blur()
 	m.amount.Blur()
 	m.price.Blur()
+	m.order.FilterInput.Blur()
 }
 
 func (m *Model) switchWindow() {
@@ -55,6 +57,8 @@ func (m *Model) nextField(forward bool) {
 
 func (m *Model) resetState() {
 	m.blurAllFields()
+	m.state = FocusSelectStock
+	m.currentWindow = 0
 	m.list.ResetSelected()
 	m.stockChoice = ""
 	m.orderType.ResetSelected()
@@ -86,7 +90,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "enter":
 			if m.state == FocusSendOrder {
-				// TODO: IMPLEMENT SEND ORDER
+				order_request.SendOrder(m.orderTypeChoice, m.sideChoice, m.price.Value(), m.amount.Value())
 				m.resetState()
 			} else if m.state == FocusSelectStock {
 				m.switchWindow()

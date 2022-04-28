@@ -3,6 +3,7 @@ package order_request
 import (
 	"fmt"
 	nos "github.com/matf-pp/2022_MATDAQ/internal/request-creator/new-order-single"
+	"io"
 	"os"
 	"strconv"
 )
@@ -66,9 +67,18 @@ func parseOrder(orderType string, side string, price string, amount string) nos.
 	}
 }
 
-func SendOrder(orderType string, side string, price string, amount string) {
+func SendOrder(conn io.Writer, orderType string, side string, price string, amount string) {
 	newOrderData := parseOrder(orderType, side, price, amount)
 
-	fmt.Fprintln(os.Stderr, newOrderData)
-	// TODO: implement sending data to server
+	// this can maybe be inside of model
+	m := nos.NewSbeGoMarshaller()
+
+	header := nos.SbeGoMessageHeader{newOrderData.SbeBlockLength(), newOrderData.SbeTemplateId(), newOrderData.SbeSchemaId(), newOrderData.SbeSchemaVersion()}
+	header.Encode(m, conn)
+
+	err := newOrderData.Encode(m, conn, false)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/lipgloss"
+	"io"
 )
 
 type SessionState int
@@ -65,13 +66,14 @@ type Model struct {
 	orderTypeChoice string
 	amount          textinput.Model
 	price           textinput.Model
+	conn            io.Writer
 	windowHeight    int
 	windowWidth     int
 	state           SessionState
 	currentWindow   int
 }
 
-func New() Model {
+func New(conn io.Writer) Model {
 	// list of stocks, later this will be loaded from some API, or stored in a file
 	stocks := []list.Item{
 		stock{title: "AAPL", description: "Apple stock"},
@@ -169,6 +171,7 @@ func New() Model {
 		amount:        amount,
 		price:         price,
 		order:         ob,
+		conn:          conn,
 		state:         FocusSelectStock,
 		currentWindow: 0,
 	}

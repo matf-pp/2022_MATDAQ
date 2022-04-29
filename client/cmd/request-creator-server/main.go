@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	new_order_single "github.com/matf-pp/2022_MATDAQ/internal/request-creator/new-order-single"
+	new_order_single "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"net"
-	"os"
 )
+
+const PORT string = "127.0.0.1:8081"
 
 func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
@@ -18,8 +19,8 @@ func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn) {
 		fmt.Println("reading new order single")
 		var newOrderData new_order_single.NewOrderSingle
 		if err := newOrderData.Decode(m, conn, hdr.Version, hdr.BlockLength, false); err != nil {
-			fmt.Println("Failed to decode NewOrderSingle")
-			os.Exit(1)
+			fmt.Println("Order for NewOrderSingle failed.")
+			continue
 		}
 
 		fmt.Println(newOrderData)
@@ -29,8 +30,6 @@ func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn) {
 
 // this is only example server, it will be removed later
 func main() {
-	PORT := "127.0.0.1:8081"
-
 	listener, err := net.Listen("tcp", PORT)
 	if err != nil {
 		fmt.Println(err)

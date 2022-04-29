@@ -2,7 +2,7 @@ package order_request
 
 import (
 	"fmt"
-	nos "github.com/matf-pp/2022_MATDAQ/internal/request-creator/new-order-single"
+	nos "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"io"
 	"os"
 	"strconv"

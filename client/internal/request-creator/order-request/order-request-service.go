@@ -1,10 +1,8 @@
 package order_request
 
 import (
-	"fmt"
 	nos "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"io"
-	"os"
 	"strconv"
 )
 
@@ -23,33 +21,38 @@ func parseOrderSide(side string) nos.SideEnum {
 }
 
 // FIX: should not return 0 when the order type is Market Order
-func parseOrderPrice(orderType nos.OrderTypeReqEnum, price string) float64 {
+func parseOrderPrice(orderType nos.OrderTypeReqEnum, price string) (float64, error) {
 	if orderType == nos.OrderTypeReq.MarketOrder {
-		return 0
+		return 0, nil
 	}
 	priceVal, err := strconv.ParseFloat(price, 64)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		return 0, err
 	}
-	return priceVal
+	return priceVal, nil
 }
 
-func parseOrderAmount(amount string) uint32 {
+func parseOrderAmount(amount string) (uint32, error) {
 	amountVal, err := strconv.ParseUint(amount, 10, 32)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		return 0, err
 	}
-	return uint32(amountVal)
+	return uint32(amountVal), nil
 }
 
-func parseOrder(orderType string, side string, price string, amount string) nos.NewOrderSingle {
+func parseOrder(orderType string, side string, price string, amount string) (nos.NewOrderSingle, error) {
 	var timeInForce nos.TimeInForceEnum = nos.TimeInForce.GTC
 	var ordTypeVal nos.OrderTypeReqEnum = parseOrderType(orderType)
 	var sideVal nos.SideEnum = parseOrderSide(side)
-	var amountVal uint32 = parseOrderAmount(amount)
-	var priceVal float64 = parseOrderPrice(ordTypeVal, price)
+	var amountVal uint32
+	var priceVal float64
+	var err error
+	if amountVal, err = parseOrderAmount(amount); err != nil {
+		return nos.NewOrderSingle{}, err
+	}
+	if priceVal, err = parseOrderPrice(ordTypeVal, price); err != nil {
+		return nos.NewOrderSingle{}, err
+	}
 
 	return nos.NewOrderSingle{
 		Price:                priceVal,
@@ -64,21 +67,23 @@ func parseOrder(orderType string, side string, price string, amount string) nos.
 		OrdType:              ordTypeVal,
 		TimeInForce:          timeInForce,
 		ManualOrderIndicator: 0,
-	}
+	}, nil
 }
 
-func SendOrder(conn io.Writer, orderType string, side string, price string, amount string) {
-	newOrderData := parseOrder(orderType, side, price, amount)
+func SendOrder(conn io.Writer, orderType string, side string, price string, amount string) error {
+	newOrderData, err := parseOrder(orderType, side, price, amount)
+	if err != nil {
+		return err
+	}
 
-	// this can maybe be inside of model
 	m := nos.NewSbeGoMarshaller()
 
 	header := nos.SbeGoMessageHeader{newOrderData.SbeBlockLength(), newOrderData.SbeTemplateId(), newOrderData.SbeSchemaId(), newOrderData.SbeSchemaVersion()}
 	header.Encode(m, conn)
 
-	err := newOrderData.Encode(m, conn, false)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if err = newOrderData.Encode(m, conn, false); err != nil {
+		return err
 	}
+
+	return nil
 }

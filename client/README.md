@@ -8,6 +8,10 @@
     ```bash
       $ make rc
     ```
+  - `request-creator-server`
+    ```bash
+      $ make rs
+    ```
   - `price-display`
     ```bash
       $ make pd
@@ -23,6 +27,10 @@
     ```bash
       $ make run-rc
     ```
+  - `request-creator-server`
+    ```bash
+      $ make run-pd
+    ```
   - `price-display`
     ```bash
       $ make run-pd
@@ -34,10 +42,13 @@ client
 ├── bin/
 │   ├── price-display
 │   └── request-creator
+│   └── request-creator-server
 ├── cmd/
 │   ├── price-display/
 │   │   └── main.go
 │   └── request-creator/
+│       └── main.go
+│   └── request-creator-server/
 │       └── main.go
 ├── pkg/
 │   └── README.md

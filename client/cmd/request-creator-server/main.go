@@ -11,16 +11,14 @@ const PORT string = "127.0.0.1:8081"
 func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
 	for {
-		fmt.Println("reading message header")
 		var hdr new_order_single.SbeGoMessageHeader
 		hdr.Decode(m, conn)
-		fmt.Println("message header read")
 
 		fmt.Println("reading new order single")
 		var newOrderData new_order_single.NewOrderSingle
 		if err := newOrderData.Decode(m, conn, hdr.Version, hdr.BlockLength, false); err != nil {
 			fmt.Println("Order for NewOrderSingle failed.")
-			continue
+			break
 		}
 
 		fmt.Println(newOrderData)

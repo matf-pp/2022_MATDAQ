@@ -91,7 +91,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.state == FocusSendOrder {
 				// for now we are sending io.Writer to the SendOrder function
-				order_request.SendOrder(m.conn, m.orderTypeChoice, m.sideChoice, m.price.Value(), m.amount.Value())
+				_ = order_request.SendOrder(m.conn, m.orderTypeChoice, m.sideChoice, m.price.Value(), m.amount.Value())
 				m.resetState()
 			} else if m.state == FocusSelectStock {
 				m.switchWindow()

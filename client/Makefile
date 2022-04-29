@@ -8,12 +8,18 @@ bin/request-creator: cmd/request-creator/main.go
 bin/price-display: cmd/price-display/main.go
 	go build -o $@ $<
 
-build: bin/request-creator bin/price-display
+bin/request-creator-server: cmd/request-creator-server/main.go
+	go build -o $@ $<
+
+build: bin/request-creator bin/price-display bin/request-creator-server
 
 rc: bin/request-creator
 	$<
 
 pd: bin/price-display
+	$<
+
+rs: bin/request-creator-server
 	$<
 
 run-rc:
@@ -22,7 +28,11 @@ run-rc:
 run-pd:
 	bin/price-display
 
+run-rs:
+	bin/request-creator-server
+
 clean: 
 	go clean
 	rm -f bin/request-creator
 	rm -f bin/price-display
+	rm -f bin/request-creator-server

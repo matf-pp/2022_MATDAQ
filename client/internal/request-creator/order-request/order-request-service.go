@@ -4,6 +4,7 @@ import (
 	nos "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"io"
 	"strconv"
+	"time"
 )
 
 func parseOrderType(orderType string) nos.OrderTypeReqEnum {
@@ -40,10 +41,11 @@ func parseOrderAmount(amount string) (uint32, error) {
 	return uint32(amountVal), nil
 }
 
-func parseOrder(orderType string, side string, price string, amount string) (nos.NewOrderSingle, error) {
+func parseOrder(securityId int32, orderType string, side string, price string, amount string) (nos.NewOrderSingle, error) {
 	var timeInForce nos.TimeInForceEnum = nos.TimeInForce.GTC
 	var ordTypeVal nos.OrderTypeReqEnum = parseOrderType(orderType)
 	var sideVal nos.SideEnum = parseOrderSide(side)
+	var sendingTime uint64 = uint64(time.Now().UnixNano())
 	var amountVal uint32
 	var priceVal float64
 	var err error
@@ -57,21 +59,21 @@ func parseOrder(orderType string, side string, price string, amount string) (nos
 	return nos.NewOrderSingle{
 		Price:                priceVal,
 		OrderQty:             amountVal,
-		SecurityID:           1,
+		SecurityID:           securityId,
 		Side:                 sideVal,
 		SeqNum:               0,
 		SenderID:             [20]byte{},
 		ClOrdID:              [20]byte{},
 		OrderRequestID:       0,
-		SendingTimeEpoch:     0,
+		SendingTimeEpoch:     sendingTime,
 		OrdType:              ordTypeVal,
 		TimeInForce:          timeInForce,
-		ManualOrderIndicator: 0,
+		ManualOrderIndicator: 1,
 	}, nil
 }
 
-func SendOrder(conn io.Writer, orderType string, side string, price string, amount string) error {
-	newOrderData, err := parseOrder(orderType, side, price, amount)
+func SendOrder(conn io.Writer, securityId int32, orderType string, side string, price string, amount string) error {
+	newOrderData, err := parseOrder(securityId, orderType, side, price, amount)
 	if err != nil {
 		return err
 	}

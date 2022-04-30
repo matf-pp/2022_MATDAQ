@@ -19,7 +19,6 @@ func main() {
 	}
 	defer conn.Close()
 
-	// for now we send connection to the model which stores it
 	m := tui.New(conn)
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())

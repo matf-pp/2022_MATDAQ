@@ -21,6 +21,7 @@ const (
 type stock struct {
 	title       string
 	description string
+	id          int32
 }
 
 func (s stock) FilterValue() string {
@@ -29,6 +30,7 @@ func (s stock) FilterValue() string {
 
 func (s stock) Title() string       { return s.title }
 func (s stock) Description() string { return s.description }
+func (s stock) Id() int32           { return s.id }
 
 type side struct {
 	title       string
@@ -60,8 +62,7 @@ type Model struct {
 	side            list.Model
 	orderType       list.Model
 	order           list.Model
-	stocks          []stock
-	stockChoice     string
+	securityId      int32
 	sideChoice      string
 	orderTypeChoice string
 	amount          textinput.Model
@@ -76,27 +77,27 @@ type Model struct {
 func New(conn io.Writer) Model {
 	// list of stocks, later this will be loaded from some API, or stored in a file
 	stocks := []list.Item{
-		stock{title: "AAPL", description: "Apple stock"},
-		stock{title: "AMZN", description: "Amazon stock"},
-		stock{title: "MSFT", description: "Microsoft stock"},
-		stock{title: "GOOG", description: "Alphabet Inc. stock"},
-		stock{title: "NFLX", description: "Netflix stock"},
-		stock{title: "TSLA", description: "Tesla stock"},
-		stock{title: "FB", description: "Meta stock"},
-		stock{title: "TSM", description: "Taiwan Semiconductor Manufacturing stock"},
-		stock{title: "NVDA", description: "NVIDIA stock"},
-		stock{title: "V", description: "Visa stock"},
-		stock{title: "WMT", description: "Walmart stock"},
-		stock{title: "JPM", description: "JP Morgan stock"},
-		stock{title: "MA", description: "Mastercard stock"},
-		stock{title: "PEP", description: "PepsiCo  stock"},
-		stock{title: "DIS", description: "Walt Disney stock"},
-		stock{title: "CSCO", description: "Cisco Systems stock"},
-		stock{title: "VZ", description: "Verizon stock"},
-		stock{title: "ORCL", description: "Oracle Corporation stock"},
-		stock{title: "NKE", description: "Nike stock"},
-		stock{title: "ADBE", description: "Adobe stock"},
-		stock{title: "INTC", description: "Intel Corporation stock"},
+		stock{title: "AAPL", description: "Apple stock", id: 1},
+		stock{title: "AMZN", description: "Amazon stock", id: 2},
+		stock{title: "MSFT", description: "Microsoft stock", id: 3},
+		stock{title: "GOOG", description: "Alphabet Inc. stock", id: 4},
+		stock{title: "NFLX", description: "Netflix stock", id: 5},
+		stock{title: "TSLA", description: "Tesla stock", id: 6},
+		stock{title: "FB", description: "Meta stock", id: 7},
+		stock{title: "TSM", description: "Taiwan Semiconductor Manufacturing stock", id: 8},
+		stock{title: "NVDA", description: "NVIDIA stock", id: 9},
+		stock{title: "V", description: "Visa stock", id: 10},
+		stock{title: "WMT", description: "Walmart stock", id: 11},
+		stock{title: "JPM", description: "JP Morgan stock", id: 12},
+		stock{title: "MA", description: "Mastercard stock", id: 13},
+		stock{title: "PEP", description: "PepsiCo  stock", id: 14},
+		stock{title: "DIS", description: "Walt Disney stock", id: 15},
+		stock{title: "CSCO", description: "Cisco Systems stock", id: 16},
+		stock{title: "VZ", description: "Verizon stock", id: 17},
+		stock{title: "ORCL", description: "Oracle Corporation stock", id: 18},
+		stock{title: "NKE", description: "Nike stock", id: 19},
+		stock{title: "ADBE", description: "Adobe stock", id: 20},
+		stock{title: "INTC", description: "Intel Corporation stock", id: 21},
 	}
 
 	l := list.New(stocks, list.NewDefaultDelegate(), 0, 0)
@@ -105,10 +106,9 @@ func New(conn io.Writer) Model {
 	l.SetShowStatusBar(false)
 
 	// order side
-	// TODO: change styling of But to green and Sell to red
 	sides := []list.Item{
 		side{title: "Buy", description: "Buy side"},
-		stock{title: "Sell", description: "Sell side"},
+		side{title: "Sell", description: "Sell side"},
 	}
 
 	s := list.New(sides, list.NewDefaultDelegate(), 0, 0)

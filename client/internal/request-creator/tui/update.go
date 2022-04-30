@@ -2,6 +2,7 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	order_request "github.com/matf-pp/2022_MATDAQ/internal/request-creator/order-request"
 )
 
 func (m *Model) blurAllFields() {
@@ -10,6 +11,7 @@ func (m *Model) blurAllFields() {
 	m.side.FilterInput.Blur()
 	m.amount.Blur()
 	m.price.Blur()
+	m.order.FilterInput.Blur()
 }
 
 func (m *Model) switchWindow() {
@@ -19,7 +21,6 @@ func (m *Model) switchWindow() {
 	m.state = FocusSelectOrderType
 }
 
-// TODO: implement toggling between different fields in the app
 func (m *Model) nextField(forward bool) {
 	if m.currentWindow == 0 ||
 		forward && m.state == FocusSendOrder ||
@@ -55,8 +56,10 @@ func (m *Model) nextField(forward bool) {
 
 func (m *Model) resetState() {
 	m.blurAllFields()
+	m.state = FocusSelectStock
+	m.currentWindow = 0
 	m.list.ResetSelected()
-	m.stockChoice = ""
+	m.securityId = 1
 	m.orderType.ResetSelected()
 	m.orderTypeChoice = ""
 	m.side.ResetSelected()
@@ -86,7 +89,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "enter":
 			if m.state == FocusSendOrder {
-				// TODO: IMPLEMENT SEND ORDER
+				m.securityId = m.list.SelectedItem().(stock).id
+				m.orderTypeChoice = m.orderType.SelectedItem().(orderType).title
+				m.sideChoice = m.side.SelectedItem().(side).title
+				_ = order_request.SendOrder(m.conn, m.securityId, m.orderTypeChoice, m.sideChoice, m.price.Value(), m.amount.Value())
 				m.resetState()
 			} else if m.state == FocusSelectStock {
 				m.switchWindow()
@@ -98,7 +104,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// TODO: clean this up
 	if m.list.FilterInput.Focused() {
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)

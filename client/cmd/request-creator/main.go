@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,7 +12,14 @@ import (
 func main() {
 	fmt.Println("Request creator")
 
-	m := tui.New()
+	conn, err := net.Dial("tcp", "127.0.0.1:8081")
+	if err != nil {
+		fmt.Println("Dial failed", err.Error())
+		os.Exit(1)
+	}
+	defer conn.Close()
+
+	m := tui.New(conn)
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())
 

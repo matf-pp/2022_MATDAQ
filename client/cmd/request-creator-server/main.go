@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	new_order_single "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"net"
+
+	new_order_single "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
 
 const PORT string = "127.0.0.1:8081"

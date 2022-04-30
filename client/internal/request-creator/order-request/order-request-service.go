@@ -1,10 +1,11 @@
 package order_request
 
 import (
-	nos "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"io"
 	"strconv"
 	"time"
+
+	nos "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
 
 func parseOrderType(orderType string) nos.OrderTypeReqEnum {
@@ -80,7 +81,11 @@ func SendOrder(conn io.Writer, securityId int32, orderType string, side string, 
 
 	m := nos.NewSbeGoMarshaller()
 
-	header := nos.SbeGoMessageHeader{newOrderData.SbeBlockLength(), newOrderData.SbeTemplateId(), newOrderData.SbeSchemaId(), newOrderData.SbeSchemaVersion()}
+	header := nos.SbeGoMessageHeader{
+		BlockLength: newOrderData.SbeBlockLength(),
+		TemplateId:  newOrderData.SbeTemplateId(),
+		SchemaId:    newOrderData.SbeSchemaId(),
+		Version:     newOrderData.SbeSchemaVersion()}
 	header.Encode(m, conn)
 
 	if err = newOrderData.Encode(m, conn, false); err != nil {

@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/matf-pp/2022_MATDAQ/internal/price-display/tui"
+	"github.com/matf-pp/2022_MATDAQ/client/internal/price-display/tui"
 )
 
 func main() {

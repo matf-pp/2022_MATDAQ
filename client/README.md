@@ -2,7 +2,7 @@
 
 ## Build and run commands
 
-- There are two separate binaries that are being built `request-creator` and `price-display` 
+- There are three separate binaries that are being built `request-creator`, `request-creator-server` and `price-display` 
 - Use the following commands for building and running 
   - `request-creator`
     ```bash
@@ -41,13 +41,13 @@
 client
 ├── bin/
 │   ├── price-display
-│   └── request-creator
+│   ├── request-creator
 │   └── request-creator-server
 ├── cmd/
 │   ├── price-display/
 │   │   └── main.go
-│   └── request-creator/
-│       └── main.go
+│   ├── request-creator/
+│   │   └── main.go
 │   └── request-creator-server/
 │       └── main.go
 ├── pkg/

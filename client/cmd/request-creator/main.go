@@ -6,7 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/matf-pp/2022_MATDAQ/internal/request-creator/tui"
+	"github.com/matf-pp/2022_MATDAQ/client/internal/request-creator/tui"
 )
 
 func main() {

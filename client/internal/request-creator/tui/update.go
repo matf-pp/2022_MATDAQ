@@ -2,7 +2,7 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	order_request "github.com/matf-pp/2022_MATDAQ/internal/request-creator/order-request"
+	order_request "github.com/matf-pp/2022_MATDAQ/client/internal/request-creator/order-request"
 )
 
 func (m *Model) blurAllFields() {

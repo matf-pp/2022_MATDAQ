@@ -1,10 +1,11 @@
 package order_request
 
 import (
-	nos "github.com/matf-pp/2022_MATDAQ/pkg/new-order-single"
 	"io"
 	"strconv"
 	"time"
+
+	nos "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
 
 func parseOrderType(orderType string) nos.OrderTypeReqEnum {

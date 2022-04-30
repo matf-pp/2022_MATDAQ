@@ -1,4 +1,4 @@
-module github.com/matf-pp/2022_MATDAQ
+module github.com/matf-pp/2022_MATDAQ/client
 
 go 1.18
 

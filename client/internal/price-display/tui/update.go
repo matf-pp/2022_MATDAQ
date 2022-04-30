@@ -1,6 +1,8 @@
 package tui
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := message.(type) {
@@ -12,9 +14,12 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			i, ok := m.list.SelectedItem().(stock)
 			if ok {
-				m.choice = string(i.title)
+				m.sell_price = i.sell_price
+				m.sell_amount = i.sell_amount
+				m.buy_price = i.buy_price
+				m.buy_amount = i.buy_amount
 			}
-			return m, tea.Quit
+			return m, nil
 		}
 	case tea.WindowSizeMsg:
 		m.height = msg.Height

@@ -15,14 +15,15 @@ use rand::Rng;
 use rand_distr::{Normal, Distribution};
 
 fn main() {
+    let num_of_orders = 250_000;
     let mut rng = rand::thread_rng();
     let mut lob : LimitOrderBook = LimitOrderBook::new();
-    let mut prices = Vec::with_capacity(250000);
-    let mut amounts = Vec::with_capacity(250000);
-    let normal = Normal::new(200.0, 4.0).unwrap();
+    let mut prices = Vec::with_capacity(num_of_orders);
+    let mut amounts = Vec::with_capacity(num_of_orders);
+    let normal = Normal::new(200.0, 5.0).unwrap();
 
-    // generate 250k random prices and amounts
-    for _i in 0..250000 {
+    // generate random prices and amounts
+    for _i in 0..num_of_orders {
         let price: f64 = normal.sample(&mut rand::thread_rng());
         let amount = rng.gen_range(0..1000);
         prices.push((price * 100.0).round().div(100.0));
@@ -32,8 +33,8 @@ fn main() {
     // start time
     let start = SystemTime::now();
 
-    // generate 250k orders
-    for i in 0..250000 {
+    // generate orders
+    for i in 0..num_of_orders {
         let side: Side = rand::random();
         lob.add_order(rng.gen::<u64>(), OrderType::Limit, side, amounts[i], prices[i], 1);
     }
@@ -45,7 +46,6 @@ fn main() {
         .duration_since(start)
         .expect("Time went backwards");
 
-    // println!("-----------------------------------------------------");
-    println!("Time taken to execute 250k orders: {}ms", since_the_epoch.as_millis());
+    println!("Time taken to execute {} orders: {}ms", num_of_orders, since_the_epoch.as_millis());
     println!("Orders on Buy Side: {}, Orders on Sell Side: {}", lob.buy_side_size(), lob.sell_side_size());
 }

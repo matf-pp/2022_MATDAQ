@@ -15,9 +15,15 @@ pub struct Order {
     pub time: u64,
 }
 
+impl Order {
+    pub fn is_filled(&self) -> bool {
+        self.amount == 0
+    }
+}
+
 impl fmt::Display for Order {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Order id: {}, Amount: {}, Limit Price: {}", self.order_id, self.amount, self.limit_price)
+        write!(f, "Order id: {}\t Amount: {}\t Limit Price: {}\t", self.order_id, self.amount, self.limit_price)
     }
 }
 

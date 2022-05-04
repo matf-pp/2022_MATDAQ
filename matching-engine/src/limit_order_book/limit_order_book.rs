@@ -1,33 +1,41 @@
 extern crate ordered_float;
 
-use std::collections::{HashMap, BinaryHeap};
-use std::cmp::Reverse;
-use ordered_float::NotNan;
+use crate::limit_order_book::order::{Order, OrderId};
 use crate::limit_order_book::order_side::Side;
 use crate::limit_order_book::order_type::OrderType;
-use crate::limit_order_book::order::{Order, OrderId};
-
+use ordered_float::NotNan;
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashMap};
 
 pub struct LimitOrderBook {
     buy_side: BinaryHeap<Order>,
     sell_side: BinaryHeap<Reverse<Order>>,
-    orders: HashMap<OrderId, Order>
+    orders: HashMap<OrderId, Order>,
 }
 
 impl LimitOrderBook {
     pub fn new() -> LimitOrderBook {
-        LimitOrderBook { buy_side: BinaryHeap::new(), sell_side: BinaryHeap::new(), orders: HashMap::new() }
+        LimitOrderBook {
+            buy_side: BinaryHeap::new(),
+            sell_side: BinaryHeap::new(),
+            orders: HashMap::new(),
+        }
     }
 
     pub fn print_book(&self) {
+        let sell_side = self.sell_side.clone();
+        let sorted_sells = sell_side.into_sorted_vec();
+        let buy_side = self.buy_side.clone();
+        let mut sorted_buys = buy_side.into_sorted_vec();
+        sorted_buys.reverse();
         println!("----------------------------------------------------------");
         println!("Sell Side:");
-        for ord in &self.sell_side {
+        for ord in sorted_sells {
             println!("{}", ord.0);
         }
         println!("----------------------------------------------------------");
         println!("Buy Side:");
-        for ord in &self.buy_side {
+        for ord in sorted_buys {
             println!("{}", ord);
         }
         println!("----------------------------------------------------------");
@@ -42,6 +50,17 @@ impl LimitOrderBook {
     }
 
     /*
+    Checks if the order is aggressive
+     */
+    fn is_aggressive(&self, order: &Order) -> bool {
+        if order.side == Side::Buy {
+            order.limit_price >= self.sell_side.peek().unwrap().0.limit_price
+        } else {
+            order.limit_price <= self.buy_side.peek().unwrap().limit_price
+        }
+    }
+
+    /*
     Adds new order to the Limit Order Book if the order is passive
     if the order is aggressive it executes the order
      */
@@ -52,139 +71,185 @@ impl LimitOrderBook {
         side: Side,
         amount: u32,
         limit_price: f64,
-        time: u64
+        time: u64,
     ) {
-        let order = Order{ order_id, ord_type, side, amount, limit_price: NotNan::new(limit_price).unwrap(), time };
-        let ord = order.clone();
+        let order = Order {
+            order_id,
+            ord_type,
+            side,
+            amount,
+            limit_price: NotNan::new(limit_price).unwrap(),
+            time,
+        };
+        let mut ord = order.clone();
 
         match order.side {
-            Side::Buy => {
-                match order.ord_type {
-                    OrderType::Limit => {
-                        if !self.sell_side.is_empty() && ord.limit_price >= self.sell_side.peek().unwrap().0.limit_price {
-                            self.execute_order(ord)
-                        } else {
-                            self.orders.insert(order.order_id, order);
-                            self.buy_side.push(ord);
-                        }
+            Side::Buy => match order.ord_type {
+                OrderType::Limit => {
+                    if !self.sell_side.is_empty() && self.is_aggressive(&ord) {
+                        self.execute_buy_limit_order(&mut ord)
+                    } else {
+                        self.orders.insert(order.order_id, order);
+                        self.buy_side.push(ord);
                     }
-                    OrderType::Market => {
-                        if !self.sell_side.is_empty() {
-                            self.execute_order(ord)
-                        } else {
-                            self.orders.insert(order.order_id, order);
-                            self.buy_side.push(ord);
-                        }
+                }
+                OrderType::Market => {
+                    if !self.sell_side.is_empty() {
+                        self.execute_buy_market_order(&mut ord)
+                    } else {
+                        self.orders.insert(order.order_id, order);
+                        self.buy_side.push(ord);
                     }
                 }
             },
-            Side::Sell => {
-                match order.ord_type {
-                    OrderType::Limit => {
-                        if !self.buy_side.is_empty() && ord.limit_price <= self.buy_side.peek().unwrap().limit_price {
-                            self.execute_order(ord)
-                        } else {
-                            self.orders.insert(order.order_id, order);
-                            self.sell_side.push(Reverse(ord));
-                        }
-                    }
-                    OrderType::Market => {
-                        if !self.buy_side.is_empty() {
-                            self.execute_order(ord)
-                        } else {
-                            self.orders.insert(order.order_id, order);
-                            self.sell_side.push(Reverse(ord));
-                        }
+            Side::Sell => match order.ord_type {
+                OrderType::Limit => {
+                    if !self.buy_side.is_empty() && self.is_aggressive(&ord) {
+                        self.execute_sell_limit_order(&mut ord)
+                    } else {
+                        self.orders.insert(order.order_id, order);
+                        self.sell_side.push(Reverse(ord));
                     }
                 }
-            }
+                OrderType::Market => {
+                    if !self.buy_side.is_empty() {
+                        self.execute_sell_market_order(&mut ord)
+                    } else {
+                        self.orders.insert(order.order_id, order);
+                        self.sell_side.push(Reverse(ord));
+                    }
+                }
+            },
         }
     }
 
-    fn execute_order(&mut self, order: Order) {
-        let mut ord = order.clone();
+    fn process_curr_order(&mut self, curr_best: &mut Order, ord: &mut Order) {
+        if curr_best.amount <= ord.amount {
+            ord.amount -= curr_best.amount;
+            if ord.side == Side::Buy {
+                self.sell_side.pop();
+            } else {
+                self.buy_side.pop();
+            }
+        } else {
+            curr_best.amount -= ord.amount;
+            ord.amount = 0;
+            self.orders.remove(&curr_best.order_id);
+            if ord.side == Side::Buy {
+                self.sell_side.pop();
+                self.sell_side.push(Reverse(*curr_best));
+            } else {
+                self.buy_side.pop();
+                self.buy_side.push(*curr_best);
+            }
+            self.orders.insert(curr_best.order_id, *curr_best);
+        }
+    }
 
+    fn execute_buy_limit_order(&mut self, ord: &mut Order) {
         // order already exists in a LOB
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists")
         }
 
-        match ord.side {
-            Side::Buy => {
-                // sets limit price to MAX value if the order type is market order
-                if ord.ord_type == OrderType::Market {
-                    ord.limit_price = NotNan::new(f64::MAX).expect("Number is NaN");
-                }
-                if self.sell_side.is_empty() {
-                    return
-                }
+        // if we dont have orders to match against then return
+        if self.sell_side.is_empty() {
+            return;
+        }
 
-                let mut best_ask = self.sell_side.peek().unwrap().0.clone();
-                while ord.amount > 0 && !self.sell_side.is_empty() && ord.limit_price >= best_ask.limit_price {
-                    /*
-                    if we can't fill the order with the current best_ask amount we will pop from sell_side
-                    and lower the order amount by best_ask amount
-                    */
-                    if best_ask.amount <= ord.amount {
-                        ord.amount -= best_ask.amount;
-                        self.sell_side.pop();
-                        /*
-                        else if the order can be filled from current best_ask we decrease the amount
-                        of that order, pop that order from book and put in a new order
-                        */
-                    } else {
-                        best_ask.amount -= ord.amount;
-                        ord.amount = 0;
-                        self.sell_side.pop();
-                        self.orders.remove(&best_ask.order_id);
-                        self.sell_side.push(Reverse(best_ask));
-                        self.orders.insert(best_ask.order_id, best_ask);
-                        return
-                    }
+        let mut best_ask = self.sell_side.peek().unwrap().0.clone();
+        while ord.amount > 0
+            && !self.sell_side.is_empty()
+            && ord.limit_price >= best_ask.limit_price
+        {
+            self.process_curr_order(&mut best_ask, ord);
 
-                    // get new best_ask
-                    if !self.sell_side.is_empty() {
-                        best_ask = self.sell_side.peek().unwrap().0.clone();
-                    }
-                }
-
-                // if order is not filled we create new order with remaining amount
-                if ord.amount > 0 {
-                    self.buy_side.push(ord);
-                    self.orders.insert(ord.order_id, ord);
-                }
-            },
-            Side::Sell => {
-                // sets limit price to 0 if the order type is market order
-                if ord.ord_type == OrderType::Market {
-                    ord.limit_price = NotNan::new(0_f64).expect("Number is NaN");
-                }
-                if self.buy_side.is_empty() {
-                    return
-                }
-                let mut best_bid = self.buy_side.peek().unwrap().clone();
-                while ord.amount > 0 && !self.buy_side.is_empty() && ord.limit_price <= best_bid.limit_price {
-                    if best_bid.amount <= ord.amount {
-                        ord.amount -= best_bid.amount;
-                        self.buy_side.pop();
-                    } else {
-                        best_bid.amount -= ord.amount;
-                        ord.amount = 0;
-                        self.buy_side.pop();
-                        self.buy_side.push(best_bid);
-                        self.orders.insert(best_bid.order_id, best_bid);
-                    }
-
-                    if !self.buy_side.is_empty() {
-                        best_bid = self.buy_side.peek().unwrap().clone();
-                    }
-                }
-
-                if ord.amount > 0 {
-                    self.sell_side.push(Reverse(ord));
-                    self.orders.insert(ord.order_id, ord);
-                }
+            if !self.sell_side.is_empty() {
+                best_ask = self.sell_side.peek().unwrap().0.clone();
             }
+        }
+
+        // if order is not filled we create new order with remaining amount
+        if !ord.is_filled() {
+            let ord_clone = ord.clone();
+            self.buy_side.push(ord_clone);
+            self.orders.insert(ord.order_id, ord_clone);
+        }
+    }
+
+    fn execute_buy_market_order(&mut self, ord: &mut Order) {
+        if self.orders.contains_key(&ord.order_id) {
+            println!("Order already exists")
+        }
+
+        if self.sell_side.is_empty() {
+            return;
+        }
+
+        let mut best_ask = self.sell_side.peek().unwrap().0.clone();
+        while ord.amount > 0 && !self.sell_side.is_empty() {
+            self.process_curr_order(&mut best_ask, ord);
+
+            if !self.sell_side.is_empty() {
+                best_ask = self.sell_side.peek().unwrap().0.clone();
+            }
+        }
+
+        if !ord.is_filled() {
+            let ord_clone = ord.clone();
+            self.buy_side.push(ord_clone);
+            self.orders.insert(ord.order_id, ord_clone);
+        }
+    }
+
+    fn execute_sell_limit_order(&mut self, ord: &mut Order) {
+        if self.orders.contains_key(&ord.order_id) {
+            println!("Order already exists")
+        }
+
+        if self.buy_side.is_empty() {
+            return;
+        }
+
+        let mut best_bid = self.buy_side.peek().unwrap().clone();
+        while ord.amount > 0 && !self.buy_side.is_empty() && ord.limit_price <= best_bid.limit_price
+        {
+            self.process_curr_order(&mut best_bid, ord);
+
+            if !self.buy_side.is_empty() {
+                best_bid = self.buy_side.peek().unwrap().clone();
+            }
+        }
+
+        if !ord.is_filled() {
+            let ord_clone = ord.clone();
+            self.sell_side.push(Reverse(ord_clone));
+            self.orders.insert(ord.order_id, ord_clone);
+        }
+    }
+
+    fn execute_sell_market_order(&mut self, ord: &mut Order) {
+        if self.orders.contains_key(&ord.order_id) {
+            println!("Order already exists")
+        }
+
+        if self.buy_side.is_empty() {
+            return;
+        }
+
+        let mut best_bid = self.buy_side.peek().unwrap().clone();
+        while ord.amount > 0 && !self.buy_side.is_empty() {
+            self.process_curr_order(&mut best_bid, ord);
+
+            if !self.buy_side.is_empty() {
+                best_bid = self.buy_side.peek().unwrap().clone();
+            }
+        }
+
+        if !ord.is_filled() {
+            let ord_clone = ord.clone();
+            self.sell_side.push(Reverse(ord_clone));
+            self.orders.insert(ord.order_id, ord_clone);
         }
     }
 }

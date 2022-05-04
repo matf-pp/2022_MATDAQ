@@ -1,7 +1,7 @@
 use rand::Rng;
 use rand::distributions::{Distribution, Standard};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Side {
     Buy,
     Sell,

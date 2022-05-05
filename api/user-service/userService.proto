@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "github.com/matf-pp/2022_MATDAQ/api/user-service";
+
+package user_service;
+
+service User {
+  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {}
+  rpc DecreaseMoney (DecreaseMoneyRequest) returns (DecreaseMoneyResponse) {}
+}
+
+message LoginUserRequest {
+  string username = 1;
+}
+
+message LoginUserResponse {
+  int32 money = 1;
+}
+
+message DecreaseMoneyRequest {
+  int32 moneyAmount = 1;
+}
+
+message DecreaseMoneyResponse {
+}
+

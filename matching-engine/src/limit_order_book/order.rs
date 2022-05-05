@@ -1,7 +1,7 @@
 use crate::limit_order_book::order_side::Side;
 use crate::limit_order_book::order_type::OrderType;
-use std::fmt;
 use std::cmp::Ordering;
+use std::fmt;
 
 pub type OrderId = u64;
 pub type SecurityId = i32;
@@ -13,8 +13,7 @@ pub struct Order {
     pub side: Side,
     pub ord_type: OrderType,
     pub amount: u32,
-    // TODO: don't forget to change this after changing limit_price from f64 to i32
-    pub limit_price: ordered_float::NotNan<f64>,
+    pub limit_price: i32,
     pub time: u128,
     pub security_id: SecurityId,
     pub sender_id: SenderId,
@@ -28,7 +27,11 @@ impl Order {
 
 impl fmt::Display for Order {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Order id: {}\t Amount: {}\t Limit Price: {}\t Type: {}\t Side: {}", self.order_id, self.amount, self.limit_price, self.ord_type, self.side)
+        write!(
+            f,
+            "Order id: {}\t Amount: {}\t Limit Price: {}\t Type: {}\t Side: {}",
+            self.order_id, self.amount, self.limit_price, self.ord_type, self.side
+        )
     }
 }
 
@@ -36,7 +39,7 @@ impl Ord for Order {
     fn cmp(&self, other: &Self) -> Ordering {
         let res = self.limit_price.cmp(&other.limit_price);
         if res == Ordering::Equal {
-            return self.time.cmp(&other.time)
+            return self.time.cmp(&other.time);
         }
         res
     }
@@ -54,4 +57,4 @@ impl PartialEq for Order {
     }
 }
 
-impl Eq for Order { }
+impl Eq for Order {}

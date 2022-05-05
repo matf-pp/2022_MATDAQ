@@ -39,7 +39,7 @@
         </enum>
     </types>
     <sbe:message id="514" description="NewOrderSingle" name="NewOrderSingle" semanticType="D">
-        <field id="44" description="Price per share or contract. Conditionally required if the order type requires a price (not market orders)" name="Price" type="double"/>
+        <field id="44" description="Price per share or contract. Conditionally required if the order type requires a price (not market orders)" name="Price" type="int32"/>
         <field id="38" description="Number of shares or contracts ordered" name="OrderQty" type="OrderQty"/>
         <field id="48" description="Security ID as defined by CME. For the security ID list, see the security definition messages" name="SecurityID" type="SecurityID"/>
         <field id="54" description="Side of order" name="Side" type="Side"/>

@@ -1,45 +1,20 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"log"
+	"net/http"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/matf-pp/2022_MATDAQ/user-service/internal"
 )
 
-var ctx = context.Background()
-
-func ExampleClient() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	err := rdb.Set(ctx, "key", "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	val, err := rdb.Get(ctx, "key").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("key", val)
-
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("key2", val2)
-	}
-	// Output: key value
-	// key2 does not exist
-}
-
 func main() {
-	fmt.Println("User server")
-	ExampleClient()
+
+	internal.InitRedis()
+
+	http.HandleFunc("/login", internal.LoginHandler)
+	http.HandleFunc("/getMoney", internal.GMHandler)
+	http.HandleFunc("/decreaseMoney", internal.DMHandler)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }

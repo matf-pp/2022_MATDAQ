@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b779a5a6-bd2e-4c00-9e27-8dad1195305e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/net/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/net/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/net/cmd/reqrep/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/cmd/reqrep/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/server.go" afterDir="false" />

@@ -1,7 +1,6 @@
 package reqrep
 
 import (
-	"fmt"
 	"go.nanomsg.org/mangos/v3"
 	"go.nanomsg.org/mangos/v3/protocol/rep"
 )
@@ -9,10 +8,10 @@ import (
 type Server struct {
 	sock mangos.Socket
 	addr string
-	out  chan Serializable
+	out  chan []byte // TODO: checkout whether fixed size is better
 }
 
-func NewServer(addr string, out chan Serializable) *Server {
+func NewServer(addr string, out chan []byte) *Server {
 	sock, err := rep.NewSocket()
 	if err != nil {
 		die("can't get new req socket: %s", err.Error())
@@ -20,11 +19,11 @@ func NewServer(addr string, out chan Serializable) *Server {
 	return &Server{sock, addr, out}
 }
 
-func (sr *Server) Respond(s Serializable) error {
-	return sr.sock.Send(s.ToBytes())
+func (sr *Server) Respond(payload []byte) error {
+	return sr.sock.Send(payload)
 }
 
-func Listen[S Serializable](sr *Server) {
+func Listen(sr *Server) {
 	if err := sr.sock.Listen(sr.addr); err != nil {
 		die("can't listen on rep socket: %s", err.Error())
 	}
@@ -35,12 +34,6 @@ func Listen[S Serializable](sr *Server) {
 			die("cannot receive on rep socket", err.Error())
 		}
 
-		// TODO: check if the interface should be implemented via pointers
-		s := new(S)
-		(*s).FromBytes(msg)
-
-		fmt.Println("servermsg", *s)
-
-		sr.out <- *s
+		sr.out <- msg
 	}
 }

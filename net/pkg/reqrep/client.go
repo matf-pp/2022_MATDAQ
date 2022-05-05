@@ -22,18 +22,15 @@ func NewClient(addr string) *Client {
 	return &Client{sock, addr}
 }
 
-func SendRequest(cl *Client, data Serializable) (Serializable, error) {
-	if err := cl.sock.Send(data.ToBytes()); err != nil {
+func SendRequest(cl *Client, data []byte) ([]byte, error) {
+	if err := cl.sock.Send(data); err != nil {
 		return nil, err
 	}
 	resp, err := cl.sock.Recv()
 	if err != nil {
 		return nil, err
 	}
-	// kinda hacky to use the same var, ali takva mi tura
-	data.FromBytes(resp)
-	res := data
-	return res, nil
+	return resp, nil
 }
 
 func (cl *Client) Close() {

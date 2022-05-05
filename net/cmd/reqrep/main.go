@@ -38,36 +38,43 @@ func client(addr string) {
 
 	client := reqrep.NewClient(addr)
 	for _, msg := range msgs {
-		resp, err := reqrep.SendRequest(client, &msg)
+		resp, err := reqrep.SendRequest(client, msg.ToBytes())
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(resp)
+		var msg Message
+		msg.FromBytes(resp)
+
+		fmt.Println(msg)
 	}
 
 	client.Close()
 }
 
 func server(addr string) {
-	res := make(chan reqrep.Serializable, 1024)
+	res := make(chan []byte, 1024)
 	server := reqrep.NewServer(addr, res)
-	go reqrep.Listen[*Message](server)
+	go reqrep.Listen(server)
 
-	for msg := range res {
+	for data := range res {
+		var msg Message
+		msg.FromBytes(data)
+
 		fmt.Printf("Got message %s !\n", msg)
-		//fmt.Printf("Got message %s !\n", msg.data)
-		//
-		//var err error
-		//switch msg.msgType {
-		//case MsgEven:
-		//	err = server.Respond(&Message{msgType: MsgEven, data: "Okk"})
-		//case MsgOdd:
-		//	err = server.Respond(&Message{msgType: MsgOdd, data: "Okk"})
-		//}
-		//if err != nil {
-		//	fmt.Fprintf(os.Stderr, "Failed to send response")
-		//}
+
+		var err error
+		switch msg.msgType {
+		case MsgEven:
+			res := Message{msgType: MsgEven, data: "Okk"}
+			err = server.Respond(res.ToBytes())
+		case MsgOdd:
+			res := Message{msgType: MsgOdd, data: "Okk"}
+			err = server.Respond(res.ToBytes())
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to send response")
+		}
 	}
 }
 

@@ -70,16 +70,17 @@ impl LimitOrderBook {
         ord_type: OrderType,
         side: Side,
         amount: u32,
-        limit_price: f64,
-        time: u64,
+        limit_price: NotNan<f64>,
+        time: u128,
     ) {
         let mut order = Order {
             order_id,
             ord_type,
             side,
             amount,
-            limit_price: NotNan::new(limit_price).unwrap(),
+            limit_price,
             time,
+            security_id: 0,
         };
 
         if order.ord_type == OrderType::Market {

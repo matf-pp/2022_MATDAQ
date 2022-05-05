@@ -2,7 +2,7 @@
 
 all: build
 
-bin/reqrep: cmd/reqrep
+bin/reqrep: cmd/reqrep/main.go
 	go build -o $@ $<
 
 build: bin/reqrep
@@ -15,4 +15,4 @@ run-reqrep:
 
 clean: 
 	go clean
-	rm -f bin/reqres
+	rm -f bin/reqrep

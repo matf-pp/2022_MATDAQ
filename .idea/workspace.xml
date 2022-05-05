@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b779a5a6-bd2e-4c00-9e27-8dad1195305e" name="Changes" comment="" />
+    <list default="true" id="b779a5a6-bd2e-4c00-9e27-8dad1195305e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/net/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/cmd/reqrep/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/cmd/reqrep/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/server.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,7 +49,7 @@
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/smiga287/MATF/PP/stock_exchange/2022_MATDAQ",
+    "last_opened_file_path": "/home/smiga287/MATF/PP/stock_exchange/2022_MATDAQ/net",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

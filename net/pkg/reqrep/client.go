@@ -1,9 +1,6 @@
 package reqrep
 
 import (
-	"fmt"
-	"os"
-
 	"go.nanomsg.org/mangos/v3"
 	"go.nanomsg.org/mangos/v3/protocol/req"
 	_ "go.nanomsg.org/mangos/v3/transport/all"
@@ -14,23 +11,31 @@ type Client struct {
 	addr string
 }
 
-func newClient(addr string) *Client {
+func NewClient(addr string) *Client {
 	sock, err := req.NewSocket()
 	if err != nil {
 		die("can't get new req socket: %s", err.Error())
 	}
+	if err = sock.Dial(addr); err != nil {
+		die("can't dial on req socket: %s", err.Error())
+	}
 	return &Client{sock, addr}
 }
 
-func (cl *Client) SendRequest(data []byte) error {
-	return cl.sock.Send(data)
+func SendRequest(cl *Client, data Serializable) (Serializable, error) {
+	if err := cl.sock.Send(data.ToBytes()); err != nil {
+		return nil, err
+	}
+	resp, err := cl.sock.Recv()
+	if err != nil {
+		return nil, err
+	}
+	// kinda hacky to use the same var, ali takva mi tura
+	data.FromBytes(resp)
+	res := data
+	return res, nil
 }
 
 func (cl *Client) Close() {
 	cl.sock.Close()
-}
-
-func die(format string, v ...any) {
-	fmt.Fprintln(os.Stderr, fmt.Sprintf(format, v...))
-	os.Exit(1)
 }

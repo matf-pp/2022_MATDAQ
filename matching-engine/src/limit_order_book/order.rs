@@ -5,6 +5,7 @@ use std::cmp::Ordering;
 
 pub type OrderId = u64;
 pub type SecurityId = i32;
+pub type SenderId = [u8; 20];
 
 #[derive(Clone, Copy)]
 pub struct Order {
@@ -12,9 +13,11 @@ pub struct Order {
     pub side: Side,
     pub ord_type: OrderType,
     pub amount: u32,
+    // TODO: don't forget to change this after changing limit_price from f64 to i32
     pub limit_price: ordered_float::NotNan<f64>,
     pub time: u128,
     pub security_id: SecurityId,
+    pub sender_id: SenderId,
 }
 
 impl Order {

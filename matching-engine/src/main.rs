@@ -6,24 +6,20 @@ mod limit_order_book;
 
 use crate::limit_order_book::{
     limit_order_book::LimitOrderBook,
-    order::{Order, SecurityId},
+    order::{Order, SecurityId, SenderId},
     order_side::Side,
     order_type::OrderType,
 };
 use ordered_float::NotNan;
 use rand::Rng;
 use rand_distr::{Distribution, Normal};
-use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
 use std::{ops::Div, time::SystemTime};
 
-// hashmap iz securityid u LOB
-
 fn main() {
-    let num_of_orders = 500;
+    let num_of_orders = 1000;
     let mut rng = rand::thread_rng();
-    let mut lob: LimitOrderBook = LimitOrderBook::new();
     let mut prices = Vec::with_capacity(num_of_orders);
     let mut amounts = Vec::with_capacity(num_of_orders);
     let normal = Normal::new(200.0, 5.0).unwrap();
@@ -67,6 +63,7 @@ fn main() {
     // generate orders
     for i in 0..num_of_orders {
         let side: Side = rand::random();
+        let sender_id: [u8; 20] = [0; 20];
         let ord_type: OrderType = rand::random();
         let price = NotNan::new(prices[i]).expect("");
         let curr_time = SystemTime::now()
@@ -78,12 +75,13 @@ fn main() {
             lobs.insert(security_id, LimitOrderBook::new());
         }
         /*
-        Get LOB from Orders securityId then create new order and print book after
+        Get LOB from Orders securityId then create new order
          */
         if let Some(limit_ord_book) = lobs.get_mut(&security_id) {
             LimitOrderBook::add_order(
                 limit_ord_book,
                 rng.gen::<u64>(),
+                sender_id,
                 ord_type,
                 side,
                 amounts[i],

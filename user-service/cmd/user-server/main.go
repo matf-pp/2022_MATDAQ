@@ -9,11 +9,11 @@ import (
 
 func main() {
 
-	internal.Init_Redis()
+	internal.InitRedis()
 
 	http.HandleFunc("/login", internal.LoginHandler)
-	http.HandleFunc("/getmoney", internal.GMHandler)
-	http.HandleFunc("/decreasemoney", internal.DMHandler)
+	http.HandleFunc("/getMoney", internal.GMHandler)
+	http.HandleFunc("/decreaseMoney", internal.DMHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 

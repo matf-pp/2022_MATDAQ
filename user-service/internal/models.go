@@ -7,7 +7,7 @@ func GetMoney(username string) int {
 	val, err := Rdb.Get(Ctx, username).Int()
 
 	if err == redis.Nil {
-		return -1
+		return 0
 	} else if err != nil {
 		panic(err)
 	}
@@ -26,12 +26,15 @@ func AddUser(username string, money string)  {
 
 func DecreseMoney(username string, money int) {
 
-	val1, err1 := Rdb.Get(Ctx, username).Int()
-	if err1 != nil {
-		panic(err1)
+	val, err := Rdb.Get(Ctx, username).Int()
+	if err != nil {
+		panic(err)
 	}
 
-	val1 = val1 - money
+	val = val - money
 
-	err2 := Rdb.SetXX(Ctx, username, val1,0)
+	err = Rdb.SetXX(Ctx, username, val,0)
+	if err != nil {
+		panic(err)
+	}
 }

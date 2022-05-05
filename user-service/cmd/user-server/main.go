@@ -1,27 +1,20 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
-	"fmt"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/matf-pp/2022_MATDAQ/user-service/internal"
 )
 
-// var ctx = context.Background()
-
 func main() {
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr:     "localhost:6379",
-	// 	Password: "", // no password set
-	// 	DB:       0,  // use default DB
-	// })
 
-	// http.HandleFunc("/login", LoginHandler)
-	// http.HandleFunc("/getmoney", GMHandler)
-	// http.HandleFunc("/decreasemoney", DMHandler)
+	internal.Init_Redis()
 
-	// log.Fatal(http.ListenAndServe(":8080", nil))
-	fmt.Println(" aaaaaaaaaaaaaaaa")
+	http.HandleFunc("/login", internal.LoginHandler)
+	http.HandleFunc("/getmoney", internal.GMHandler)
+	http.HandleFunc("/decreasemoney", internal.DMHandler)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }

@@ -1,9 +1,27 @@
-package main
+package internal
 
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"context"
+
+	"github.com/go-redis/redis/v8"
 )
+
+var Ctx = context.Background()
+
+var Ctx Contex
+var Rdb *redis.Client
+
+func Init_Redis(){
+	Rdb = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+	})
+
+	Ctx = context.Background()
+}
+
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -15,9 +33,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	money := r.FormValue("money")
 
-	LoginUser(username, money)
+	AddUser(username, money)
 
-	fmt.Fprintf(w, "LoginHandler %s is a %s\n", username, money)
+	// fmt.Fprintf(w, "LoginHandler %s is a %s\n", username, money)
 }
 
 func GMHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,11 +47,11 @@ func GMHandler(w http.ResponseWriter, r *http.Request) {
 
 	username := r.FormValue("username")
 
-	money := FindUsername(username)
+	money := GetMoney(username)
 
-	w.Write([]byte(money))
 
-	fmt.Fprintf(w, "GMHandler  %s is a %s\n", username, money)
+
+	// fmt.Fprintf(w, "GMHandler  %s is a %d\n", username, money)
 }
 
 func DMHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,9 +62,12 @@ func DMHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	username := r.FormValue("username")
-	money := r.FormValue("money")
+	money, err := strconv.Atoi(r.FormValue("money"))
+	if err != nil{
+		panic(err)
+	}
 
 	DecreseMoney(username, money)
 
-	fmt.Fprintf(w, "DMHandler  %s is a %s\n", username, money)
+	// fmt.Fprintf(w, "DMHandler  %s is a %s\n", username, money)
 }

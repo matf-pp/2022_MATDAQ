@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/matf-pp/2022_MATDAQ/api/matching-engine";
 
-package user_service;
+package matching_engine;
 
 service MatchingEngine {
   rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse) {}

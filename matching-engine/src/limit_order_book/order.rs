@@ -23,7 +23,7 @@ impl Order {
 
 impl fmt::Display for Order {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Order id: {}\t Amount: {}\t Limit Price: {}\t", self.order_id, self.amount, self.limit_price)
+        write!(f, "Order id: {}\t Amount: {}\t Limit Price: {}\t Type: {}\t Side: {}", self.order_id, self.amount, self.limit_price, self.ord_type, self.side)
     }
 }
 

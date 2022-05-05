@@ -73,7 +73,7 @@ impl LimitOrderBook {
         limit_price: f64,
         time: u64,
     ) {
-        let order = Order {
+        let mut order = Order {
             order_id,
             ord_type,
             side,
@@ -81,6 +81,15 @@ impl LimitOrderBook {
             limit_price: NotNan::new(limit_price).unwrap(),
             time,
         };
+
+        if order.ord_type == OrderType::Market {
+            if order.side == Side::Sell {
+                order.limit_price = NotNan::new(0.0).expect("");
+            } else {
+                order.limit_price = NotNan::new(f64::MAX).expect("");
+            }
+        }
+
         let mut ord = order.clone();
 
         match order.side {

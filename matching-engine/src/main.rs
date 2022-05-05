@@ -36,7 +36,8 @@ fn main() {
     // generate orders
     for i in 0..num_of_orders {
         let side: Side = rand::random();
-        lob.add_order(rng.gen::<u64>(), OrderType::Limit, side, amounts[i], prices[i], 1);
+        let ord_type: OrderType = rand::random();
+        lob.add_order(rng.gen::<u64>(), ord_type, side, amounts[i], prices[i], 1);
     }
 
     // end time

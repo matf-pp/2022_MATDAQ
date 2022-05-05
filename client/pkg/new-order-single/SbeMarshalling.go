@@ -17,7 +17,7 @@
 //
 // https://github.com/real-logic/simple-binary-encoding
 
-package new_order_single
+package baseline
 
 import (
 	"io"

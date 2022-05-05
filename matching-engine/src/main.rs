@@ -18,17 +18,16 @@ use std::time::UNIX_EPOCH;
 use std::{ops::Div, time::SystemTime};
 
 fn main() {
-    let num_of_orders = 1000;
+    let num_of_orders = 3_000_000;
     let mut rng = rand::thread_rng();
     let mut prices = Vec::with_capacity(num_of_orders);
     let mut amounts = Vec::with_capacity(num_of_orders);
-    let normal = Normal::new(200.0, 5.0).unwrap();
 
     // generate random prices and amounts
     for _i in 0..num_of_orders {
-        let price: f64 = normal.sample(&mut rand::thread_rng());
-        let amount = rng.gen_range(0..1000);
-        prices.push((price * 100.0).round().div(100.0));
+        let price: i32 = rng.gen_range(180..=220);
+        let amount = rng.gen_range(1..=1000);
+        prices.push(price);
         amounts.push(amount)
     }
 
@@ -42,7 +41,7 @@ fn main() {
     //     side: Side::Sell,
     //     ord_type: OrderType::Limit,
     //     amount: 10,
-    //     limit_price: NotNan::new(100.0).expect("Value is NaN"),
+    //     limit_price: 100,
     //     time: SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_nanos(),
     // };
 
@@ -50,10 +49,6 @@ fn main() {
     we get new order from Request-Service-Server containing information about new order
     inside there is SecurityId field, based on that field we get the LOB on which we add new order
     if current SecurityId from request doesnt exist, we create new LOB for that request
-
-    LimitOrderBook::add_order() should receive Order type as parameter
-
-    lobs.
      */
     let mut lobs: HashMap<SecurityId, LimitOrderBook> = HashMap::new();
 
@@ -65,12 +60,12 @@ fn main() {
         let side: Side = rand::random();
         let sender_id: [u8; 20] = [0; 20];
         let ord_type: OrderType = rand::random();
-        let price = NotNan::new(prices[i]).expect("");
+        let price = prices[i];
         let curr_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards")
             .as_nanos();
-        let security_id = rng.gen_range(1..=5);
+        let security_id = rng.gen_range(1..=20);
         if !lobs.contains_key(&security_id) {
             lobs.insert(security_id, LimitOrderBook::new());
         }
@@ -91,10 +86,10 @@ fn main() {
         }
     }
 
-    for key in lobs.keys() {
-        println!("Limit Order Book: {}", key);
-        lobs.get(&key).unwrap().print_book();
-    }
+    // for key in lobs.keys() {
+    //     println!("Limit Order Book: {}", key);
+    //     lobs.get(&key).unwrap().print_book();
+    // }
 
     // end time
     let end = SystemTime::now();

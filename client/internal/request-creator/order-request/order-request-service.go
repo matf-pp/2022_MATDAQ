@@ -22,16 +22,15 @@ func parseOrderSide(side string) nos.SideEnum {
 	return nos.Side.Sell
 }
 
-// FIX: should not return 0 when the order type is Market Order
-func parseOrderPrice(orderType nos.OrderTypeReqEnum, price string) (float64, error) {
+func parseOrderPrice(orderType nos.OrderTypeReqEnum, price string) (int32, error) {
 	if orderType == nos.OrderTypeReq.MarketOrder {
 		return 0, nil
 	}
-	priceVal, err := strconv.ParseFloat(price, 64)
+	priceVal, err := strconv.ParseInt(price, 10, 32)
 	if err != nil {
 		return 0, err
 	}
-	return priceVal, nil
+	return int32(priceVal), nil
 }
 
 func parseOrderAmount(amount string) (uint32, error) {
@@ -48,7 +47,7 @@ func parseOrder(securityId int32, orderType string, side string, price string, a
 	var sideVal nos.SideEnum = parseOrderSide(side)
 	var sendingTime uint64 = uint64(time.Now().UnixNano())
 	var amountVal uint32
-	var priceVal float64
+	var priceVal int32
 	var err error
 	if amountVal, err = parseOrderAmount(amount); err != nil {
 		return nos.NewOrderSingle{}, err

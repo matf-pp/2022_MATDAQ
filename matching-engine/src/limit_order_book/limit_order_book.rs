@@ -6,7 +6,6 @@ use crate::limit_order_book::{
     order_type::OrderType,
     request_handlers::request_money_update,
 };
-use ordered_float::NotNan;
 use rand_distr::num_traits::ToPrimitive;
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
@@ -75,7 +74,7 @@ impl LimitOrderBook {
         ord_type: OrderType,
         side: Side,
         amount: u32,
-        limit_price: NotNan<f64>,
+        limit_price: i32,
         time: u128,
     ) {
         let mut order = Order {
@@ -91,9 +90,9 @@ impl LimitOrderBook {
 
         if order.ord_type == OrderType::Market {
             if order.side == Side::Sell {
-                order.limit_price = NotNan::new(0.).expect("");
+                order.limit_price = 0;
             } else {
-                order.limit_price = NotNan::new(2147483647.).expect("");
+                order.limit_price = i32::MAX;
             }
         }
 
@@ -151,7 +150,6 @@ impl LimitOrderBook {
 
     fn process_curr_order(&mut self, curr_best: &mut Order, ord: &mut Order) -> i32 {
         let money_amount: i32;
-        // TODO: don't forget to change this after changing price_limit from f64 to i32
         let mut curr_best_price: i32 = 0;
 
         /*
@@ -166,18 +164,10 @@ impl LimitOrderBook {
             } else if ord.ord_type == OrderType::Market && ord.side == Side::Sell {
                 self.sell_side.push(Reverse(*ord));
             } else {
-                curr_best_price = ord
-                    .limit_price
-                    .round()
-                    .to_i32()
-                    .expect("Value can't be converted to i32");
+                curr_best_price = ord.limit_price;
             }
         } else {
-            curr_best_price = curr_best
-                .limit_price
-                .round()
-                .to_i32()
-                .expect("Value can't be converted to i32");
+            curr_best_price = curr_best.limit_price;
         }
 
         if curr_best.amount <= ord.amount {

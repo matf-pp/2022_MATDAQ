@@ -5,10 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b779a5a6-bd2e-4c00-9e27-8dad1195305e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/net/cmd/reqres/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/net/pkg/reqres/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/net/cmd/reqrep/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/cmd/reqrep/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqrep/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/net/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/cmd/reqrep/main.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqres/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/common.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/net/pkg/reqrep/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/net/pkg/reqres/server.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +58,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RunManager">
@@ -81,6 +85,17 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

@@ -1,18 +1,18 @@
-.PHONY: clean build reqrep run-reqrep
+.PHONY: clean build reqres run-reqres
 
 all: build
 
-bin/reqrep: cmd/reqrep/main.go
+bin/reqres: cmd/reqres/main.go
 	go build -o $@ $<
 
-build: bin/reqrep
+build: bin/reqres
 
-reqrep: bin/reqrep
+reqrep: bin/reqres
 	$<
 
-run-reqrep:
-	bin/reqrep
+run-reqres:
+	bin/reqres
 
 clean: 
 	go clean
-	rm -f bin/reqrep
+	rm -f bin/reqres

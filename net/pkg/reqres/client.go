@@ -1,4 +1,4 @@
-package reqrep
+package reqres
 
 import (
 	"go.nanomsg.org/mangos/v3"

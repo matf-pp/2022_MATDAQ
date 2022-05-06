@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b779a5a6-bd2e-4c00-9e27-8dad1195305e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/internal/price-display/tui/update.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/internal/price-display/tui/update.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/matching-engine/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/matching-engine/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/matching-engine/matchingEngine.proto" beforeDir="false" afterPath="$PROJECT_DIR$/api/matching-engine/matchingEngine.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user-service/userService.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/userService.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user-service/userService.proto" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/userService.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/matf-pp/2022_MATDAQ/api/user-service";
+option go_package = "github.com/matf-pp/2022_MATDAQ/api";
 
 package user_service;
 

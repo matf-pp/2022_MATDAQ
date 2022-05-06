@@ -22,10 +22,12 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case tea.WindowSizeMsg:
+		m.windowHeight = msg.Height - 3
+		m.windowWidth = msg.Width/2 - 2
 		m.height = msg.Height
 		m.width = msg.Width
 		m.list.SetWidth(msg.Width / 2)
-		m.list.SetHeight(msg.Height - 2)
+		m.list.SetHeight(msg.Height - 3)
 		return m, nil
 	}
 

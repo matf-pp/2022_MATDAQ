@@ -27,6 +27,7 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.list.SetWidth(msg.Width / 2)
 		m.list.SetHeight(msg.Height - 3)
+
 		return m, nil
 	}
 

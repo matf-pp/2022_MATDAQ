@@ -1,6 +1,6 @@
 // Generated SBE (Simple Binary Encoding) message codec
 
-package new_order_single
+package baseline
 
 import (
 	"fmt"

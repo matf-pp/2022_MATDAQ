@@ -1,6 +1,6 @@
 // Generated SBE (Simple Binary Encoding) message codec
 
-package new_order_single
+package baseline
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 type NewOrderSingle struct {
-	Price                float64
+	Price                int32
 	OrderQty             uint32
 	SecurityID           int32
 	Side                 SideEnum
@@ -30,7 +30,7 @@ func (n *NewOrderSingle) Encode(_m *SbeGoMarshaller, _w io.Writer, doRangeCheck 
 			return err
 		}
 	}
-	if err := _m.WriteFloat64(_w, n.Price); err != nil {
+	if err := _m.WriteInt32(_w, n.Price); err != nil {
 		return err
 	}
 	if err := _m.WriteUint32(_w, n.OrderQty); err != nil {
@@ -73,7 +73,7 @@ func (n *NewOrderSingle) Decode(_m *SbeGoMarshaller, _r io.Reader, actingVersion
 	if !n.PriceInActingVersion(actingVersion) {
 		n.Price = n.PriceNullValue()
 	} else {
-		if err := _m.ReadFloat64(_r, &n.Price); err != nil {
+		if err := _m.ReadInt32(_r, &n.Price); err != nil {
 			return err
 		}
 	}
@@ -236,7 +236,7 @@ func NewOrderSingleInit(n *NewOrderSingle) {
 }
 
 func (*NewOrderSingle) SbeBlockLength() (blockLength uint16) {
-	return 80
+	return 76
 }
 
 func (*NewOrderSingle) SbeTemplateId() (templateId uint16) {
@@ -285,16 +285,16 @@ func (*NewOrderSingle) PriceMetaAttribute(meta int) string {
 	return ""
 }
 
-func (*NewOrderSingle) PriceMinValue() float64 {
-	return -math.MaxFloat64
+func (*NewOrderSingle) PriceMinValue() int32 {
+	return math.MinInt32 + 1
 }
 
-func (*NewOrderSingle) PriceMaxValue() float64 {
-	return math.MaxFloat64
+func (*NewOrderSingle) PriceMaxValue() int32 {
+	return math.MaxInt32
 }
 
-func (*NewOrderSingle) PriceNullValue() float64 {
-	return math.NaN()
+func (*NewOrderSingle) PriceNullValue() int32 {
+	return math.MinInt32
 }
 
 func (*NewOrderSingle) OrderQtyId() uint16 {

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package = "github.com/matf-pp/2022_MATDAQ/api/matching-engine";
+
+package matching_engine;
+
+service MatchingEngine {
+  rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse) {}
+  rpc PublishTrade (PublishTradeRequest) returns (stream PublishTradeResponse) {}
+  rpc PublishOrderCreation (PublishOrderRequest) returns (stream PublishOrderResponse) {}
+}
+
+message SecurityOrder {
+  sint32 price = 1;
+  uint32 securityId = 2;
+  uint32 orderQuantity = 3;
+}
+
+message CreateOrderRequest {
+  SecurityOrder securityOrder = 1;
+  uint64 orderId = 2;
+  enum OrderType {
+    Limit = 0; // TODO: check if this is correct
+    Market = 1;
+  }
+  OrderType orderType = 3;
+  bytes senderId = 4;
+}
+
+message CreateOrderResponse {
+  int32 money = 1;
+}
+
+// in the future the client should probably specify a list of securityIds it's interested in following
+message PublishTradeRequest {
+}
+
+message PublishTradeResponse {
+  uint32 securityId = 1;
+  uint32 orderQuantity = 2;
+}
+
+message PublishOrderRequest {
+}
+
+message PublishOrderResponse {
+  SecurityOrder securityOrder = 1;
+}

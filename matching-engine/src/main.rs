@@ -10,12 +10,11 @@ use crate::limit_order_book::{
     order_side::Side,
     order_type::OrderType,
 };
-use ordered_float::NotNan;
 use rand::Rng;
 use rand_distr::{Distribution, Normal};
 use std::collections::HashMap;
+use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
-use std::{ops::Div, time::SystemTime};
 
 fn main() {
     let num_of_orders = 3_000_000;

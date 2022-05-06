@@ -1,29 +1,65 @@
 package tui
 
 import (
+	nos "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
+	"sort"
+
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
 )
 
-const listHeight = 7
-const listWidth = 20
-
-var (
-	titleStyle        = lipgloss.NewStyle().MarginLeft(2).Bold(true)
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(4).Italic(true)
-	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
-	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
-	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
-)
+type order struct {
+	price    int32
+	orderQty uint32
+	side     nos.SideValues
+}
 
 type stock struct {
 	title       string
 	description string
-	sell_price  []float64
-	sell_amount []float64
-	buy_price   []float64
-	buy_amount  []float64
+	stockId     int32
+	buySide     []order
+	sellSide    []order
+	// will be deleted later
+	sellPrices []int32
+	sellAmount []uint32
+	buyPrices  []int32
+	buyAmount  []uint32
+}
+
+func (s stock) GetBuySide() ([]int32, []uint32) {
+	buyPrices := []int32{}
+	buyAmounts := []uint32{}
+
+	sort.Slice(s.buySide, func(i, j int) bool {
+		return s.buySide[i].price > s.buySide[j].price
+	})
+
+	for _, x := range s.buySide {
+		buyPrices = append(buyPrices, x.price)
+		buyAmounts = append(buyAmounts, x.orderQty)
+	}
+	return buyPrices, buyAmounts
+}
+
+func (s stock) GetSellSide() ([]int32, []uint32) {
+	sellPrices := []int32{}
+	sellAmounts := []uint32{}
+
+	sort.Slice(s.sellSide, func(i, j int) bool {
+		return s.sellSide[i].price < s.sellSide[j].price
+	})
+
+	for _, x := range s.sellSide {
+		sellPrices = append(sellPrices, x.price)
+		sellAmounts = append(sellAmounts, x.orderQty)
+	}
+	// reverse order
+	for i, j := 0, len(sellPrices)-1; i < j; i, j = i+1, j-1 {
+		sellPrices[i], sellPrices[j] = sellPrices[j], sellPrices[i]
+		sellAmounts[i], sellAmounts[j] = sellAmounts[j], sellAmounts[i]
+	}
+
+	return sellPrices, sellAmounts
 }
 
 func (s stock) FilterValue() string {
@@ -34,203 +70,28 @@ func (s stock) Title() string       { return s.title }
 func (s stock) Description() string { return s.description }
 
 type Model struct {
-	list        list.Model
-	stocks      []stock
-	sell_price  []float64
-	sell_amount []float64
-	buy_price   []float64
-	buy_amount  []float64
-	choice      string
-	height      int
-	width       int
+	list         list.Model
+	stocks       [NUM_OF_STOCKS]stock
+	sellPrice    []int32
+	sellAmount   []uint32
+	buyPrice     []int32
+	buyAmount    []uint32
+	choice       string
+	height       int
+	width        int
+	windowHeight int
+	windowWidth  int
 }
 
 func New() Model {
-
-	stocks := []list.Item{
-		stock{
-			title:       "AAPL",
-			description: "Apple stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "AMZN",
-			description: "Amazon stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "MSFT",
-			description: "Microsoft stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "GOOG",
-			description: "Alphabet Inc. stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "NFLX",
-			description: "Netflix stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "TSLA",
-			description: "Tesla stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "FB",
-			description: "Meta stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "TSM",
-			description: "Taiwan Semiconductor Manufacturing stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "NVDA",
-			description: "NVIDIA stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "V",
-			description: "Visa stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "WMT",
-			description: "Walmart stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "JPM",
-			description: "JP Morgan stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "MA",
-			description: "Mastercard stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "PEP",
-			description: "PepsiCo  stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "DIS",
-			description: "Walt Disney stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "CSCO",
-			description: "Cisco Systems stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "VZ",
-			description: "Verizon stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "ORCL",
-			description: "Oracle Corporation stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "NKE",
-			description: "Nike stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "ADBE",
-			description: "Adobe stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-		stock{
-			title:       "INTC",
-			description: "Intel Corporation stock",
-			sell_price:  []float64{},
-			sell_amount: []float64{},
-			buy_price:   []float64{},
-			buy_amount:  []float64{},
-		},
-	}
-
 	d := list.NewDefaultDelegate()
-	l := list.New(stocks, d, listWidth, listHeight)
-	l.Paginator.PerPage = 5
-	l.Title = "STOCKS"
+	l := list.New(StocksList, d, 0, 0)
+	l.Title = "Stocks"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
 
 	return Model{
 		list:   l,
-		height: 40,
-		width:  40,
+		stocks: StocksArray,
 	}
 }

@@ -9,16 +9,15 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "esc", "ctrl+c":
+		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			i, ok := m.list.SelectedItem().(stock)
-			if ok {
-				m.sell_price = i.sell_price
-				m.sell_amount = i.sell_amount
-				m.buy_price = i.buy_price
-				m.buy_amount = i.buy_amount
-			}
+			// gets selected stock data
+			s := m.stocks[m.list.Index()]
+			m.sellPrice = s.GetSellPrices()
+			m.sellAmount = s.sellAmount
+			m.buyPrice = s.buyPrices
+			m.buyAmount = s.buyAmount
 			return m, nil
 		}
 	case tea.WindowSizeMsg:

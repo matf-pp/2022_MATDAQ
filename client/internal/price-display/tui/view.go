@@ -28,81 +28,83 @@ func uintArrayToString(l []uint32) string {
 
 func (m *Model) View() string {
 
-	var header = lipgloss.NewStyle().
-		Height(1).
-		MarginLeft(1).
-		PaddingLeft(1).
-		PaddingRight(1).
-		Bold(true).
-		Background(lipgloss.Color("7")).
-		Foreground(lipgloss.Color("#FAFAFA")).
-		Render("MATDAQ")
+	var (
+		header = lipgloss.NewStyle().
+			Height(1).
+			MarginLeft(1).
+			PaddingLeft(1).
+			PaddingRight(1).
+			Bold(true).
+			Background(lipgloss.Color("7")).
+			Foreground(lipgloss.Color("#FAFAFA")).
+			Render("MATDAQ")
 
-	var style1 = lipgloss.NewStyle().
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("63")).
-		Height(m.windowHeight).
-		Width(m.windowWidth)
+		style1 = lipgloss.NewStyle().
+			PaddingLeft(1).
+			PaddingRight(1).
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("63")).
+			Height(m.windowHeight).
+			Width(m.windowWidth)
 
-	var rightBoxSellSideStyle = lipgloss.NewStyle().
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("9")).
-		Height(m.height/2 - 3).
-		Width(m.width/2 - 6)
+		rightBoxSellSideStyle = lipgloss.NewStyle().
+					PaddingLeft(1).
+					PaddingRight(1).
+					BorderStyle(lipgloss.NormalBorder()).
+					BorderForeground(lipgloss.Color("9")).
+					Height(m.height/2 - 3).
+					Width(m.width/2 - 6)
 
-	var rightBoxBuySideStyle = lipgloss.NewStyle().
-		PaddingLeft(1).
-		PaddingRight(1).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("150")).
-		Height(m.height/2 - 3).
-		Width(m.width/2 - 6)
+		rightBoxBuySideStyle = lipgloss.NewStyle().
+					PaddingLeft(1).
+					PaddingRight(1).
+					BorderStyle(lipgloss.NormalBorder()).
+					BorderForeground(lipgloss.Color("150")).
+					Height(m.height/2 - 3).
+					Width(m.width/2 - 6)
 
-	var priceStyle = lipgloss.NewStyle().
-		Bold(true).
-		Align(lipgloss.Center).
-		Height(2).
-		Width((m.width - 10) / 4).
-		Render("Price($)")
+		priceStyle = lipgloss.NewStyle().
+				Bold(true).
+				Align(lipgloss.Center).
+				Height(2).
+				Width((m.width - 10) / 4).
+				Render("Price($)")
 
-	var amountStyle = lipgloss.NewStyle().
-		Bold(true).
-		Align(lipgloss.Center).
-		Height(2).
-		Width((m.width - 10) / 4).
-		Render("Amount")
+		amountStyle = lipgloss.NewStyle().
+				Bold(true).
+				Align(lipgloss.Center).
+				Height(2).
+				Width((m.width - 10) / 4).
+				Render("Amount")
 
-	var listStyle1 = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("150")).
-		Align(lipgloss.Center).
-		Height((m.height - 2) / 3).
-		Width((m.width - 10) / 4).
-		Render(intArrayToString(m.buy_price))
+		listStyle1 = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("150")).
+				Align(lipgloss.Center).
+				Height((m.height - 2) / 3).
+				Width((m.width - 10) / 4).
+				Render(intArrayToString(m.buyPrice))
 
-	var listStyle2 = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("9")).
-		Align(lipgloss.Center).
-		Height((m.height - 2) / 3).
-		Width((m.width - 10) / 4).
-		Render(intArrayToString(m.sell_price))
+		listStyle2 = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("9")).
+				Align(lipgloss.Center).
+				Height((m.height - 2) / 3).
+				Width((m.width - 10) / 4).
+				Render(intArrayToString(m.sellPrice))
 
-	var amStyle1 = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("150")).
-		Align(lipgloss.Center).
-		Height((m.height - 2) / 3).
-		Width((m.width - 10) / 4).
-		Render(uintArrayToString(m.buy_amount))
+		amStyle1 = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("150")).
+				Align(lipgloss.Center).
+				Height((m.height - 2) / 3).
+				Width((m.width - 10) / 4).
+				Render(uintArrayToString(m.buyAmount))
 
-	var amStyle2 = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("9")).
-		Align(lipgloss.Center).
-		Height((m.height - 2) / 3).
-		Width((m.width - 10) / 4).
-		Render(uintArrayToString(m.sell_amount))
+		amStyle2 = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("9")).
+				Align(lipgloss.Center).
+				Height((m.height - 2) / 3).
+				Width((m.width - 10) / 4).
+				Render(uintArrayToString(m.sellAmount))
+	)
 
 	leftBox := style1.Render(m.list.View())
 	priceBox1 := lipgloss.JoinVertical(lipgloss.Left, priceStyle, listStyle1)

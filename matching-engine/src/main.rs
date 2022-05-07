@@ -17,7 +17,7 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 fn main() {
-    let num_of_orders = 3_000_000;
+    let num_of_orders = 300;
     let mut rng = rand::thread_rng();
     let mut prices = Vec::with_capacity(num_of_orders);
     let mut amounts = Vec::with_capacity(num_of_orders);
@@ -65,16 +65,20 @@ fn main() {
             .expect("Time went backwards")
             .as_nanos();
         let security_id = rng.gen_range(1..=20);
+
+        // Check if LOB contains security with given security_id
+        // If it doesn't then add it to the LOB
         if !lobs.contains_key(&security_id) {
             lobs.insert(security_id, LimitOrderBook::new());
         }
         /*
-        Get LOB from Orders securityId then create new order
+        Get LOB from Orders security_id then create new order
          */
         if let Some(limit_ord_book) = lobs.get_mut(&security_id) {
             LimitOrderBook::add_order(
                 limit_ord_book,
                 rng.gen::<u64>(),
+                security_id,
                 sender_id,
                 ord_type,
                 side,

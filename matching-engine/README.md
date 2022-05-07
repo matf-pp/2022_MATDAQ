@@ -5,6 +5,10 @@
     ```bash
     $ rustup update
     ```
+- Run the following command to install protoc binary
+    ```bash
+    $ apt install libprotobuf-dev protobuf-compiler
+    ```
 
 ## Building and running
 

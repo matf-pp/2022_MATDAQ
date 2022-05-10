@@ -18,7 +18,8 @@ message LoginUserResponse {
 }
 
 message DecreaseMoneyRequest {
-  int32 moneyAmount = 1;
+  string username = 1;
+  int32 moneyAmount = 2;
 }
 
 message DecreaseMoneyResponse {

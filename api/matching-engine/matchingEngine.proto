@@ -14,6 +14,11 @@ message SecurityOrder {
   sint32 price = 1;
   uint32 securityId = 2;
   uint32 orderQuantity = 3;
+  enum OrderSide {
+    Buy = 0;
+    Sell = 1;
+  }
+  OrderSide orderSide = 4;
 }
 
 message CreateOrderRequest {
@@ -28,7 +33,6 @@ message CreateOrderRequest {
 }
 
 message CreateOrderResponse {
-  int32 money = 1;
 }
 
 // in the future the client should probably specify a list of securityIds it's interested in following
@@ -36,8 +40,7 @@ message PublishTradeRequest {
 }
 
 message PublishTradeResponse {
-  uint32 securityId = 1;
-  uint32 orderQuantity = 2;
+  SecurityOrder securityOrder = 1;
 }
 
 message PublishOrderRequest {

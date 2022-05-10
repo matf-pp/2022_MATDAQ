@@ -1,19 +1,18 @@
 package tui
 
 import (
+	"context"
 	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-
 	tea "github.com/charmbracelet/bubbletea"
+	api "github.com/matf-pp/2022_MATDAQ/api/user-service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
 )
 
 type statusMsg int
 
-type errMsg struct{ error }
-
-const HOST = "http://localhost:8080"
+const PORT int = 9000
 
 func (m *Model) Init() tea.Cmd {
 	return func() tea.Msg { return checkServer(m.username, m.money) }
@@ -33,17 +32,24 @@ func toStringUsername(username [20]byte) string {
 }
 
 func checkServer(username [20]byte, money int32) tea.Msg {
-	url := HOST + "/login?username=" + toStringUsername(username) + "&money=" + strconv.Itoa(int(money))
-	fmt.Println(url)
-	c := &http.Client{
-		Timeout: 10 * time.Second,
-	}
-	res, err := c.Get(url)
-	if err != nil {
-		fmt.Println("Error happened: {}", err)
-		return errMsg{err}
-	}
+	var conn *grpc.ClientConn
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	fmt.Println("{}", res)
-	return statusMsg(res.StatusCode)
+	conn, err := grpc.Dial(fmt.Sprintf(":%d", PORT), opts...)
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	userClient := api.NewUserClient(conn)
+	loginUserReq := &api.LoginUserRequest{
+		Username: toStringUsername(username),
+		Money:    money,
+	}
+	_, err = userClient.LoginUser(context.Background(), loginUserReq)
+	if err != nil {
+		log.Fatalf("Error when calling SayHello: %s", err)
+	}
+	return statusMsg(200)
 }

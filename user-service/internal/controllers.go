@@ -1,23 +1,22 @@
 package internal
 
 import (
-	"net/http"
-	"fmt"
-	"strconv"
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
+	"net/http"
+	"strconv"
 )
 
 var Ctx = context.Background()
 var Rdb *redis.Client
 
-func InitRedis(){
+func InitRedis() {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr: "localhost:6379",
 	})
 
 }
-
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -25,7 +24,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	money := r.FormValue("money")
 
 	AddUser(username, money)
-
 
 }
 
@@ -35,19 +33,17 @@ func GMHandler(w http.ResponseWriter, r *http.Request) {
 
 	money := GetMoney(username)
 
-
-
-	fmt.Fprintf(w, "%d\n",money)
+	fmt.Fprintf(w, "%d\n", money)
 }
 
 func DMHandler(w http.ResponseWriter, r *http.Request) {
 
 	username := r.FormValue("username")
 	money, err := strconv.Atoi(r.FormValue("money"))
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
-	DecreseMoney(username, money)
+	DecreaseMoney(username, money)
 
 }

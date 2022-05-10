@@ -1,28 +1,17 @@
 package internal
 
-import "github.com/go-redis/redis/v8"
-
-func GetMoney(username string) int {
+func GetMoney(username string) (int, error) {
 	money, err := Rdb.Get(Ctx, username).Int()
-	if err == redis.Nil {
-		return 0
-	} else if err != nil {
-		panic(err)
+	if err != nil {
+		return 0, err
 	}
-
-	return money
+	return money, nil
 }
 
-func AddUser(username string, money string) {
-	err := Rdb.Set(Ctx, username, money, 0).Err()
-	if err != nil {
-		panic(err)
-	}
+func AddUser(username string, money int32) error {
+	return Rdb.Set(Ctx, username, money, 0).Err()
 }
 
-func DecreaseMoney(username string, moneyAmount int) {
-	err := Rdb.DecrBy(Ctx, username, int64(moneyAmount)).Err()
-	if err != nil {
-		panic(err)
-	}
+func DecreaseMoney(username string, moneyAmount int32) error {
+	return Rdb.DecrBy(Ctx, username, int64(moneyAmount)).Err()
 }

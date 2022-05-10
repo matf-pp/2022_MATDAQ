@@ -67,6 +67,8 @@ type Model struct {
 	orderTypeChoice string
 	amount          textinput.Model
 	price           textinput.Model
+	username        [20]byte
+	money           int32
 	conn            io.Writer
 	windowHeight    int
 	windowWidth     int
@@ -164,6 +166,10 @@ func New(conn io.Writer) Model {
 	amount.CharLimit = 20
 	amount.Prompt = "❯ "
 
+	// read data from file where username (and money) is contained and set current user
+	username := [20]byte{'i', 'i', 'l', 'i', 'j', 'a', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	var money int32 = 3953211
+
 	return Model{
 		list:          l,
 		side:          s,
@@ -171,6 +177,8 @@ func New(conn io.Writer) Model {
 		amount:        amount,
 		price:         price,
 		order:         ob,
+		username:      username,
+		money:         money,
 		conn:          conn,
 		state:         FocusSelectStock,
 		currentWindow: 0,

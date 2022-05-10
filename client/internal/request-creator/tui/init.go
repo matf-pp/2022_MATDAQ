@@ -2,17 +2,17 @@ package tui
 
 import (
 	"context"
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	api "github.com/matf-pp/2022_MATDAQ/api/user-service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 )
 
 type statusMsg int
 
-type errMsg struct{ error }
-
-const HOST = "http://localhost:8080"
+const PORT int = 9000
 
 func (m *Model) Init() tea.Cmd {
 	return func() tea.Msg { return checkServer(m.username, m.money) }
@@ -32,10 +32,11 @@ func toStringUsername(username [20]byte) string {
 }
 
 func checkServer(username [20]byte, money int32) tea.Msg {
-	// TODO: move connection creation out of checkServer
 	var conn *grpc.ClientConn
 	var opts []grpc.DialOption
-	conn, err := grpc.Dial(":9000", opts...)
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	conn, err := grpc.Dial(fmt.Sprintf(":%d", PORT), opts...)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}

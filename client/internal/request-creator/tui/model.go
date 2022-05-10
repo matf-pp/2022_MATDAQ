@@ -167,7 +167,7 @@ func New(conn io.Writer) Model {
 	amount.Prompt = "❯ "
 
 	// read data from file where username (and money) is contained and set current user
-	username := [20]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'i', 'l', 'i', 'j', 'a'}
+	username := [20]byte{'i', 'i', 'l', 'i', 'j', 'a', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	var money int32 = 3953211
 
 	return Model{

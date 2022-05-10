@@ -90,7 +90,7 @@ impl LimitOrderBook {
             amount,
             limit_price,
             time,
-            security_id: 0,
+            security_id,
         };
 
         // Set limit price of a Market order according to the side it's on

@@ -184,9 +184,11 @@ impl LimitOrderBook {
             if ord.ord_type == OrderType::Market && ord.side == Side::Buy {
                 self.buy_side.push(*ord);
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
+                return 0;
             } else if ord.ord_type == OrderType::Market && ord.side == Side::Sell {
                 self.sell_side.push(Reverse(*ord));
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
+                return 0;
             } else {
                 curr_best_price = ord.limit_price;
             }
@@ -302,6 +304,10 @@ impl LimitOrderBook {
         while ord.amount > 0 && !self.sell_side.is_empty() {
             money_amount -= self.process_curr_order(&mut best_ask, ord);
 
+            if money_amount == 0 {
+                return 0;
+            }
+
             if !self.sell_side.is_empty() {
                 best_ask = self.sell_side.peek().unwrap().0.clone();
             }
@@ -365,6 +371,10 @@ impl LimitOrderBook {
         let mut best_bid = self.buy_side.peek().unwrap().clone();
         while ord.amount > 0 && !self.buy_side.is_empty() {
             money_amount += self.process_curr_order(&mut best_bid, ord);
+
+            if money_amount == 0 {
+                return 0;
+            }
 
             if !self.buy_side.is_empty() {
                 best_bid = self.buy_side.peek().unwrap().clone();

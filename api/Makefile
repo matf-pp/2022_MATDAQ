@@ -19,4 +19,3 @@ matchingEngineGo: ./matching-engine/matchingEngine.proto
 		--proto_path=.
 clean:
 	go clean
-	rm -f bin/user-server

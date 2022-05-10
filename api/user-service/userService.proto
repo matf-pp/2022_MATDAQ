@@ -11,10 +11,10 @@ service User {
 
 message LoginUserRequest {
   string username = 1;
+  int32 money = 2;
 }
 
 message LoginUserResponse {
-  int32 money = 1;
 }
 
 message DecreaseMoneyRequest {

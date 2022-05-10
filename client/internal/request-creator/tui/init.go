@@ -1,12 +1,11 @@
 package tui
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-
+	"context"
 	tea "github.com/charmbracelet/bubbletea"
+	api "github.com/matf-pp/2022_MATDAQ/api/user-service"
+	"google.golang.org/grpc"
+	"log"
 )
 
 type statusMsg int
@@ -33,17 +32,23 @@ func toStringUsername(username [20]byte) string {
 }
 
 func checkServer(username [20]byte, money int32) tea.Msg {
-	url := HOST + "/login?username=" + toStringUsername(username) + "&money=" + strconv.Itoa(int(money))
-	fmt.Println(url)
-	c := &http.Client{
-		Timeout: 10 * time.Second,
-	}
-	res, err := c.Get(url)
+	// TODO: move connection creation out of checkServer
+	var conn *grpc.ClientConn
+	var opts []grpc.DialOption
+	conn, err := grpc.Dial(":9000", opts...)
 	if err != nil {
-		fmt.Println("Error happened: {}", err)
-		return errMsg{err}
+		log.Fatalf("did not connect: %s", err)
 	}
+	defer conn.Close()
 
-	fmt.Println("{}", res)
-	return statusMsg(res.StatusCode)
+	userClient := api.NewUserClient(conn)
+	loginUserReq := &api.LoginUserRequest{
+		Username: toStringUsername(username),
+		Money:    money,
+	}
+	_, err = userClient.LoginUser(context.Background(), loginUserReq)
+	if err != nil {
+		log.Fatalf("Error when calling SayHello: %s", err)
+	}
+	return statusMsg(200)
 }

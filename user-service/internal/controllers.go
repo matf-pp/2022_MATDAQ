@@ -33,9 +33,7 @@ func (s *UserServerImpl) LoginUser(ctx context.Context, req *api.LoginUserReques
 }
 
 func (s *UserServerImpl) DecreaseMoney(ctx context.Context, req *api.DecreaseMoneyRequest) (*api.DecreaseMoneyResponse, error) {
-	// FIXME: username is missing
-	username := "ilija"
-	if err := DecreaseMoney(username, req.MoneyAmount); err != nil {
+	if err := DecreaseMoney(req.Username, req.MoneyAmount); err != nil {
 		return nil, err
 	}
 	return &api.DecreaseMoneyResponse{}, nil

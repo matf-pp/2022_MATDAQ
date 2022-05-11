@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510210135-3c5c2b772c6a
+	github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510234430-4837e55430a8
 	google.golang.org/grpc v1.46.0
 )
 

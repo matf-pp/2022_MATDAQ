@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510210135-3c5c2b772c6a
+	google.golang.org/grpc v1.46.0
 )
 
 require (
@@ -15,6 +16,5 @@ require (
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
-	google.golang.org/grpc v1.46.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )

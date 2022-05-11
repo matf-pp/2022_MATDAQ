@@ -65,8 +65,8 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
-github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510210135-3c5c2b772c6a h1:WAzo6OOS/6HxJ51396LmELHoN4FJ912CzKAM1zORHHU=
-github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510210135-3c5c2b772c6a/go.mod h1:iedOF0tPc0bdCO9fGLVyFfPNT08QMi58fwBZ6IhtfRE=
+github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220511002826-8e70f97b879d h1:nJqBQ+hWUuvLegJaUgjgDlAXdFtePnZpletdw9U/pxQ=
+github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220511002826-8e70f97b879d/go.mod h1:iedOF0tPc0bdCO9fGLVyFfPNT08QMi58fwBZ6IhtfRE=
 github.com/mattn/go-isatty v0.0.13/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=

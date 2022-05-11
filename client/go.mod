@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/dustin/go-humanize v1.0.0
-	github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220510210135-3c5c2b772c6a
+	github.com/matf-pp/2022_MATDAQ/api v0.0.0-20220511002826-8e70f97b879d
 	google.golang.org/grpc v1.46.0
 )
 

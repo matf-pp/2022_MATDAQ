@@ -216,15 +216,16 @@ impl LimitOrderBook {
             self.orders.remove(&curr_best.order_id);
             if ord.side == Side::Buy {
                 request_money_update(curr_best.sender_id, money_amount);
-                request_trade(curr_best.security_id, curr_best.amount, Side::Buy);
+                request_trade(curr_best.security_id, ord.amount, Side::Buy);
                 self.sell_side.pop();
                 self.sell_side.push(Reverse(*curr_best));
             } else {
                 request_money_update(curr_best.sender_id, -money_amount);
-                request_trade(curr_best.security_id, curr_best.amount, Side::Sell);
+                request_trade(curr_best.security_id, ord.amount, Side::Sell);
                 self.buy_side.pop();
                 self.buy_side.push(*curr_best);
             }
+            ord.amount = 0;
             self.orders.insert(curr_best.order_id, *curr_best);
         }
 

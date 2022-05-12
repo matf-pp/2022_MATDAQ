@@ -27,6 +27,23 @@ impl LimitOrderBook {
         }
     }
 
+    pub fn to_string(&self) -> String {
+        let mut str = "".to_string();
+        let sell_side = self.sell_side.clone();
+        let sorted_sells = sell_side.into_sorted_vec();
+        let buy_side = self.buy_side.clone();
+        let mut sorted_buys = buy_side.into_sorted_vec();
+        sorted_buys.reverse();
+
+        for ord in sorted_sells {
+            str.push_str(&*ord.0.to_string())
+        }
+        for ord in sorted_buys {
+            str.push_str(&*ord.to_string())
+        }
+        return str;
+    }
+
     pub fn print_book(&self) {
         let sell_side = self.sell_side.clone();
         let sorted_sells = sell_side.into_sorted_vec();
@@ -76,6 +93,14 @@ impl LimitOrderBook {
        TODO: refactor this into two functions, separate adding an order from executing it
     */
     pub fn add_order(&mut self, mut order: Order) {
+        // Set limit price of a Market order according to the side it's on
+        if order.order_type == OrderType::Market {
+            if order.side == Side::Sell {
+                order.limit_price = 0;
+            } else {
+                order.limit_price = i32::MAX;
+            }
+        }
         /*
            Here we check the order's type(Market/Limit) and order's side(Buy/Sell)
            and based on that we add the given order

@@ -1,7 +1,6 @@
 .PHONY: clean build rc pd run-rc run-pd
 
 REQUEST_CREATOR_SRC        = $(shell find ./internal/request-creator -type f -name '*.go')
-# REQUEST_CREATOR_SERVER_SRC = $(shell find ./internal/request-creator-server -type f -name '*.go')
 PRICE_DISPLAY_SRC          = $(shell find ./internal/price-display -type f -name '*.go')
 
 all: build
@@ -9,7 +8,7 @@ all: build
 bin/request-creator: cmd/request-creator/main.go $(REQUEST_CREATOR_SRC)
 	go build -o $@ $<
 
-bin/request-creator-server: cmd/request-creator-server/main.go $(REQUEST_CREATOR_SERVER_SRC)
+bin/request-creator-server: cmd/request-creator-server/main.go
 	go build -o $@ $<
 
 bin/price-display: cmd/price-display/main.go $(PRICE_DISPLAY_SRC)

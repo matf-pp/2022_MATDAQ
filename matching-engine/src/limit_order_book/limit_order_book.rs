@@ -1,7 +1,7 @@
 extern crate ordered_float;
 
 use crate::limit_order_book::{
-    order::{Order, OrderId, SecurityId, SenderId},
+    order::{Order, OrderId},
     order_side::Side,
     order_type::OrderType,
     request_handlers::{request_money_update, request_new_order, request_trade},
@@ -14,14 +14,16 @@ pub struct LimitOrderBook {
     buy_side: BinaryHeap<Order>,
     sell_side: BinaryHeap<Reverse<Order>>,
     orders: HashMap<OrderId, Order>,
+    name: String,
 }
 
 impl LimitOrderBook {
-    pub fn new() -> LimitOrderBook {
+    pub fn new(name: &str) -> LimitOrderBook {
         LimitOrderBook {
             buy_side: BinaryHeap::new(),
             sell_side: BinaryHeap::new(),
             orders: HashMap::new(),
+            name: String::from(name),
         }
     }
 
@@ -71,30 +73,9 @@ impl LimitOrderBook {
        Adds new order to the Limit Order Book if the order is passive or executes
        the order if the order is aggressive
     */
-    pub fn add_order(
-        &mut self,
-        order_id: u64,
-        security_id: SecurityId,
-        sender_id: SenderId,
-        ord_type: OrderType,
-        side: Side,
-        amount: u32,
-        limit_price: i32,
-        time: u128,
-    ) {
-        let mut order = Order {
-            order_id,
-            sender_id,
-            ord_type,
-            side,
-            amount,
-            limit_price,
-            time,
-            security_id,
-        };
-
+    pub fn add_order(&mut self, mut order: Order) {
         // Set limit price of a Market order according to the side it's on
-        if order.ord_type == OrderType::Market {
+        if order.order_type == OrderType::Market {
             if order.side == Side::Sell {
                 order.limit_price = 0;
             } else {
@@ -111,7 +92,7 @@ impl LimitOrderBook {
            If the order is executed then total_money_exchanged won't be equal to 0
         */
         match order.side {
-            Side::Buy => match order.ord_type {
+            Side::Buy => match order.order_type {
                 OrderType::Limit => {
                     if !self.sell_side.is_empty() && self.is_aggressive(&ord) {
                         /*
@@ -137,7 +118,7 @@ impl LimitOrderBook {
                     }
                 }
             },
-            Side::Sell => match order.ord_type {
+            Side::Sell => match order.order_type {
                 OrderType::Limit => {
                     if !self.buy_side.is_empty() && self.is_aggressive(&ord) {
                         total_money_exchanged = self.execute_sell_limit_order(&mut ord)
@@ -171,7 +152,7 @@ impl LimitOrderBook {
     */
     fn process_curr_order(&mut self, curr_best: &mut Order, ord: &mut Order) -> i32 {
         let money_amount: i32;
-        let mut curr_best_price: i32 = 0;
+        let curr_best_price: i32;
 
         /*
            Set best price for buying/selling
@@ -180,12 +161,12 @@ impl LimitOrderBook {
            and our order is Limit Order then we execute at the price of our Limit Order
            Else, if our Order is Market Order then we dont execute it, we just add it to the LOB
         */
-        if curr_best.ord_type == OrderType::Market {
-            if ord.ord_type == OrderType::Market && ord.side == Side::Buy {
+        if curr_best.order_type == OrderType::Market {
+            if ord.order_type == OrderType::Market && ord.side == Side::Buy {
                 self.buy_side.push(*ord);
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
                 return 0;
-            } else if ord.ord_type == OrderType::Market && ord.side == Side::Sell {
+            } else if ord.order_type == OrderType::Market && ord.side == Side::Sell {
                 self.sell_side.push(Reverse(*ord));
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
                 return 0;

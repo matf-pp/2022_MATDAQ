@@ -1,11 +1,3 @@
-// use std::error::Error;
-// use std::time::Duration;
-
-// use futures::stream;
-// use rand::rngs::ThreadRng;
-// use rand::Rng;
-// use tokio::time;
-// use tonic::transport::Channel;
 use tonic::{Request, Response};
 
 use user_service::user_client::UserClient;
@@ -17,23 +9,20 @@ pub mod user_service {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let USERNAME = String::from("Ilija");
-    const MONEY_AMOUNT: i32 = 8;
+    let username = String::from("Ilija");
+    let money_amount: i32 = 8;
 
     const USER_SERVICE_HOST: &str = "http://127.0.0.1:9000";
     let mut client = UserClient::connect(USER_SERVICE_HOST).await?;
 
     let response: Response<DecreaseMoneyResponse> = client
         .decrease_money(Request::new(DecreaseMoneyRequest {
-            username: USERNAME,
-            money_amount: MONEY_AMOUNT,
+            username,
+            money_amount,
         }))
         .await?;
 
     println!("RESPONSE = {:?}", response);
-
-    // println!("\n*** SERVER STREAMING ***");
-    // print_features(&mut client).await?;
 
     Ok(())
 }

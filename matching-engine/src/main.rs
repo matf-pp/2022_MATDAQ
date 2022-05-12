@@ -6,6 +6,7 @@ mod limit_order_book;
 
 use crate::limit_order_book::{
     limit_order_book::LimitOrderBook,
+    limit_order_book_manager::LimitOrderBookManager,
     order::{Order, SecurityId, SenderId},
     order_side::Side,
     order_type::OrderType,

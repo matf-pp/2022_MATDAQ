@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/rand"
+	"net"
+
 	api "github.com/matf-pp/2022_MATDAQ/api/matching-engine"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"net"
 
 	new_order_single "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
@@ -26,24 +28,34 @@ func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn, client
 			fmt.Println("Order for NewOrderSingle failed.")
 			break
 		}
-		/*
-		  Send request to Matching Engine
-		*/
-		//enum OrderType {
-		//	Limit = 0;
-		//	enum OrderSide {
-		//	Buy = 0;
-		//	Sell = 1;
+		//	  Send request to Matching Engine
+
+		orderTypeId := func() int {
+			if newOrderData.OrdType == new_order_single.OrderTypeReq.LimitOrder {
+				return 0
+			} else {
+				return 1
+			}
+		}()
+
+		orderSideId := func() int {
+			if newOrderData.Side == new_order_single.Side.Buy {
+				return 0
+			} else {
+				return 1
+			}
+		}()
 
 		loginUserReq := &api.CreateOrderRequest{
 			SecurityOrder: &api.SecurityOrder{
-				Price:         1,
-				SecurityId:    1,
-				OrderQuantity: 1,
+				Price:         newOrderData.Price,
+				SecurityId:    uint32(newOrderData.SecurityID),
+				OrderQuantity: newOrderData.OrderQty,
+				OrderSide:     api.SecurityOrder_OrderSide(orderSideId),
 			},
-			OrderId:   1,
-			OrderType: api.CreateOrderRequest_OrderType(0),
-			SenderId:  []byte("ilija"),
+			OrderId:   rand.Uint64(),
+			OrderType: api.CreateOrderRequest_OrderType(orderTypeId),
+			SenderId:  newOrderData.SenderID[:],
 		}
 
 		_, err := client.CreateOrder(context.Background(), loginUserReq)

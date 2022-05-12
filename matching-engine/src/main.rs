@@ -26,7 +26,7 @@ fn main() {
     // generate random prices and amounts
     for _i in 0..num_of_orders {
         let price: i32 = rng.gen_range(180..=220);
-        let amount = rng.gen_range(1..=1000);
+        let amount: i32 = rng.gen_range(1..=1000);
         prices.push(price);
         amounts.push(amount)
     }
@@ -76,17 +76,17 @@ fn main() {
         Get LOB from Orders security_id then create new order
          */
         if let Some(limit_ord_book) = lobs.get_mut(&security_id) {
-            LimitOrderBook::add_order(
-                limit_ord_book,
-                rng.gen::<u64>(),
-                security_id,
-                sender_id,
-                ord_type,
-                side,
-                amounts[i],
-                price,
-                curr_time,
-            );
+            // LimitOrderBook::add_order(
+            //     limit_ord_book,
+            //     rng.gen::<u64>(),
+            //     security_id,
+            //     sender_id,
+            //     ord_type,
+            //     side,
+            //     amounts[i],
+            //     price,
+            //     curr_time,
+            // );
         }
     }
 

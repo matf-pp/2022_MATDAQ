@@ -37,6 +37,7 @@ services:
     tty: true
     depends_on:
     - client_build
+    - matching-engine
     command: make run-pd
     volumes:
       - ./client/cmd:/usr/src/app/cmd
@@ -64,4 +65,15 @@ services:
       - "6397"
     command: redis-server
 
-
+  matching-engine:
+    image: matching-engine
+    build:
+      context: ./matching-engine
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    command: cargo run --bin server
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./src:/usr/src/app/src

@@ -68,12 +68,12 @@ services:
   matching-engine:
     image: matching-engine
     build:
-      context: ./matching-engine
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./matching-engine/Dockerfile
     stdin_open: true
     tty: true
-    command: cargo run --bin server
+    command: ./target/release/matching-engine
     ports:
       - "10000:10000"
     volumes:
-      - ./src:/usr/src/app/src
+      - ./matching-engine/src:/usr/src/app/src

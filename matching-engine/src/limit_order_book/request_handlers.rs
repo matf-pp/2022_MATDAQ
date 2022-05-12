@@ -12,7 +12,7 @@ use crate::limit_order_book::{order::SecurityId, order::SenderId, order_side::Si
    1) user whose order is being executed at the end calls this function
    2) all the users against which the trade happened should also get their money updated
 */
-pub fn request_money_update(user: SenderId, money_amount: i32) {
+pub fn request_money_update(_user: SenderId, money_amount: i32) {
     if money_amount < 0 {
         println!("\x1b[31m{}\x1b[0m", money_amount);
     } else {

@@ -4,14 +4,14 @@ use std::cmp::Ordering;
 use std::fmt;
 
 pub type OrderId = u64;
-pub type SecurityId = i32;
+pub type SecurityId = u32;
 pub type SenderId = [u8; 20];
 
 #[derive(Clone, Copy)]
 pub struct Order {
     pub order_id: OrderId,
     pub side: Side,
-    pub ord_type: OrderType,
+    pub order_type: OrderType,
     pub amount: u32,
     pub limit_price: i32,
     pub time: u128,
@@ -30,7 +30,7 @@ impl fmt::Display for Order {
         write!(
             f,
             "Order id: {}\t Amount: {}\t Limit Price: {}\t Type: {}\t Side: {}",
-            self.order_id, self.amount, self.limit_price, self.ord_type, self.side
+            self.order_id, self.amount, self.limit_price, self.order_type, self.side
         )
     }
 }

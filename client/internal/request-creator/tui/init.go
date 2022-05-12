@@ -36,7 +36,7 @@ func checkServer(username [20]byte, money int32) tea.Msg {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", PORT), opts...)
+	conn, err := grpc.Dial(fmt.Sprintf("user-service:%d", PORT), opts...)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}

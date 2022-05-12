@@ -2,7 +2,7 @@ version: '3'
 services:
   client_build:
     image: client
-    command: ['echo', 'Build completed']
+    command: echo 'Build completed'
     build:
       context: ./client
       dockerfile: ./Dockerfile
@@ -11,11 +11,9 @@ services:
     image: client
     depends_on:
     - client_build
-    command: ['make', 'run-rs']
-    networks:
-      - frontend
+    command: make run-rs
     ports:
-      - "8081"
+      - "8081:8081"
     volumes:
       - ./client/cmd:/usr/src/app/cmd
       - ./client/internal:/usr/src/app/internal
@@ -24,12 +22,11 @@ services:
     image: client
     stdin_open: true
     tty: true
-    networks:
-      - frontend
     depends_on:
     - client_build
     - request-creator-server
-    command: ['make', 'run-rc']
+    - user-service
+    command: make run-rc
     volumes:
       - ./client/cmd:/usr/src/app/cmd
       - ./client/internal:/usr/src/app/internal
@@ -40,10 +37,31 @@ services:
     tty: true
     depends_on:
     - client_build
-    command: ['make', 'run-pd']
+    command: make run-pd
     volumes:
       - ./client/cmd:/usr/src/app/cmd
       - ./client/internal:/usr/src/app/internal
 
-networks:
-  frontend:
+  user-service:
+    image: user-service
+    build:
+      context: ./user-service
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    depends_on:
+    - redis
+    command: make run-us
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./user-service/cmd:/usr/src/app/cmd
+      - ./user-service/internal:/usr/src/app/internal
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6397"
+    command: redis-server
+
+

@@ -12,7 +12,7 @@ var Rdb *redis.Client
 
 func InitRedis() {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: "redis:6379",
 	})
 }
 

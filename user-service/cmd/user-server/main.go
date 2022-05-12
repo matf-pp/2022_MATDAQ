@@ -15,7 +15,7 @@ func main() {
 
 	internal.InitRedis()
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("user-service:%d", PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

@@ -1,0 +1,79 @@
+version: '3'
+services:
+  client_build:
+    image: client
+    command: echo 'Build completed'
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile
+    
+  request-creator-server:
+    image: client
+    depends_on:
+    - client_build
+    command: make run-rs
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+  request-creator:
+    image: client
+    stdin_open: true
+    tty: true
+    depends_on:
+    - client_build
+    - request-creator-server
+    - user-service
+    command: make run-rc
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+  price-display:
+    image: client
+    stdin_open: true
+    tty: true
+    depends_on:
+    - client_build
+    - matching-engine
+    command: make run-pd
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+  user-service:
+    image: user-service
+    build:
+      context: ./user-service
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    depends_on:
+    - redis
+    command: make run-us
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./user-service/cmd:/usr/src/app/cmd
+      - ./user-service/internal:/usr/src/app/internal
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6397"
+    command: redis-server
+
+  matching-engine:
+    image: matching-engine
+    build:
+      context: .
+      dockerfile: ./matching-engine/Dockerfile
+    stdin_open: true
+    tty: true
+    command: ./target/release/matching-engine
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./matching-engine/src:/usr/src/app/src

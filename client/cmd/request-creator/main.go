@@ -12,7 +12,7 @@ import (
 func main() {
 	fmt.Println("Request creator")
 
-	conn, err := net.Dial("tcp", "127.0.0.1:8081")
+	conn, err := net.Dial("tcp", "request-creator-server:8081")
 	if err != nil {
 		fmt.Println("Dial failed", err.Error())
 		os.Exit(1)

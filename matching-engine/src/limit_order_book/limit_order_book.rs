@@ -27,6 +27,23 @@ impl LimitOrderBook {
         }
     }
 
+    pub fn to_string(&self) -> String {
+        let mut str = "".to_string();
+        let sell_side = self.sell_side.clone();
+        let sorted_sells = sell_side.into_sorted_vec();
+        let buy_side = self.buy_side.clone();
+        let mut sorted_buys = buy_side.into_sorted_vec();
+        sorted_buys.reverse();
+
+        for ord in sorted_sells {
+            str.push_str(&*ord.0.to_string())
+        }
+        for ord in sorted_buys {
+            str.push_str(&*ord.to_string())
+        }
+        return str;
+    }
+
     pub fn print_book(&self) {
         let sell_side = self.sell_side.clone();
         let sorted_sells = sell_side.into_sorted_vec();
@@ -46,14 +63,6 @@ impl LimitOrderBook {
         println!("----------------------------------------------------------");
     }
 
-    pub fn buy_side_size(&self) -> usize {
-        self.buy_side.len()
-    }
-
-    pub fn sell_side_size(&self) -> usize {
-        self.sell_side.len()
-    }
-
     /*
        Checks if the order is aggressive
 
@@ -61,17 +70,27 @@ impl LimitOrderBook {
        than the best ask price, or if it is on the Sell side and it's limit_price is
        less than the best bid price
     */
-    fn is_aggressive(&self, order: &Order) -> bool {
-        if order.side == Side::Buy {
-            order.limit_price >= self.sell_side.peek().unwrap().0.limit_price
-        } else {
-            order.limit_price <= self.buy_side.peek().unwrap().limit_price
+    pub fn is_aggressive(&self, order: &Order) -> bool {
+        if (order.side == Side::Buy && self.sell_side.is_empty())
+            || order.side == Side::Sell && self.buy_side.is_empty()
+        {
+            return false;
+        }
+        if order.order_type == OrderType::Market {
+            return true;
+        }
+
+        match order.side {
+            Side::Buy => return order.limit_price >= self.sell_side.peek().unwrap().0.limit_price,
+            Side::Sell => return order.limit_price <= self.buy_side.peek().unwrap().limit_price,
         }
     }
 
     /*
        Adds new order to the Limit Order Book if the order is passive or executes
        the order if the order is aggressive
+
+       TODO: refactor this into two functions, separate adding an order from executing it
     */
     pub fn add_order(&mut self, mut order: Order) {
         // Set limit price of a Market order according to the side it's on
@@ -82,66 +101,58 @@ impl LimitOrderBook {
                 order.limit_price = i32::MAX;
             }
         }
-
-        let mut ord = order.clone();
-
-        let mut total_money_exchanged = 0;
         /*
            Here we check the order's type(Market/Limit) and order's side(Buy/Sell)
-           and based on that we add or execute the given order
-           If the order is executed then total_money_exchanged won't be equal to 0
+           and based on that we add the given order
         */
+        let mut ord = order.clone();
         match order.side {
             Side::Buy => match order.order_type {
                 OrderType::Limit => {
-                    if !self.sell_side.is_empty() && self.is_aggressive(&ord) {
-                        /*
-                        returns the amount by which we should lower current user's money
-                         */
-                        total_money_exchanged = self.execute_buy_limit_order(&mut ord);
-                    } else {
-                        /*
-                           after adding new orders we should send update to Price-Display client
-                        */
-                        self.orders.insert(order.order_id, order);
-                        self.buy_side.push(ord);
-                        request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                    }
+                    self.orders.insert(order.order_id, order);
+                    self.buy_side.push(ord);
                 }
                 OrderType::Market => {
-                    if !self.sell_side.is_empty() {
-                        total_money_exchanged = self.execute_buy_market_order(&mut ord);
-                    } else {
-                        self.orders.insert(order.order_id, order);
-                        self.buy_side.push(ord);
-                        request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                    }
+                    self.orders.insert(order.order_id, order);
+                    self.buy_side.push(ord);
+                }
+            },
+            _ => match order.order_type {
+                OrderType::Limit => {
+                    self.orders.insert(order.order_id, order);
+                    self.sell_side.push(Reverse(ord));
+                }
+                OrderType::Market => {
+                    self.orders.insert(order.order_id, order);
+                    self.sell_side.push(Reverse(ord));
+                }
+            },
+        }
+        request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
+    }
+
+    // Executes the given order and returns money that was traded
+    pub fn execute_order(&mut self, order: Order) -> i32 {
+        let mut ord = order.clone();
+
+        match order.side {
+            Side::Buy => match order.order_type {
+                OrderType::Limit => {
+                    return self.execute_buy_limit_order(&mut ord);
+                }
+                OrderType::Market => {
+                    return self.execute_buy_market_order(&mut ord);
                 }
             },
             Side::Sell => match order.order_type {
                 OrderType::Limit => {
-                    if !self.buy_side.is_empty() && self.is_aggressive(&ord) {
-                        total_money_exchanged = self.execute_sell_limit_order(&mut ord)
-                    } else {
-                        self.orders.insert(order.order_id, order);
-                        self.sell_side.push(Reverse(ord));
-                        request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                    }
+                    return self.execute_sell_limit_order(&mut ord);
                 }
                 OrderType::Market => {
-                    if !self.buy_side.is_empty() {
-                        total_money_exchanged = self.execute_sell_market_order(&mut ord)
-                    } else {
-                        self.orders.insert(order.order_id, order);
-                        self.sell_side.push(Reverse(ord));
-                        request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                    }
+                    return self.execute_sell_market_order(&mut ord);
                 }
             },
         }
-
-        // Send request to update user's money
-        request_money_update(order.sender_id, total_money_exchanged);
     }
 
     /*
@@ -212,19 +223,19 @@ impl LimitOrderBook {
         } else {
             curr_best.amount -= ord.amount;
             money_amount = ord.amount.to_i32().unwrap() * curr_best_price;
-            ord.amount = 0;
             self.orders.remove(&curr_best.order_id);
             if ord.side == Side::Buy {
                 request_money_update(curr_best.sender_id, money_amount);
-                request_trade(curr_best.security_id, curr_best.amount, Side::Buy);
+                request_trade(curr_best.security_id, ord.amount, Side::Buy);
                 self.sell_side.pop();
                 self.sell_side.push(Reverse(*curr_best));
             } else {
                 request_money_update(curr_best.sender_id, -money_amount);
-                request_trade(curr_best.security_id, curr_best.amount, Side::Sell);
+                request_trade(curr_best.security_id, ord.amount, Side::Sell);
                 self.buy_side.pop();
                 self.buy_side.push(*curr_best);
             }
+            ord.amount = 0;
             self.orders.insert(curr_best.order_id, *curr_best);
         }
 
@@ -237,11 +248,6 @@ impl LimitOrderBook {
         // order already exists in a LOB
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return money_amount;
-        }
-
-        // if we dont have orders to match against then return
-        if self.sell_side.is_empty() {
             return money_amount;
         }
 
@@ -277,10 +283,6 @@ impl LimitOrderBook {
             return 0;
         }
 
-        if self.sell_side.is_empty() {
-            return 0;
-        }
-
         let mut best_ask = self.sell_side.peek().unwrap().0.clone();
         while ord.amount > 0 && !self.sell_side.is_empty() {
             money_amount -= self.process_curr_order(&mut best_ask, ord);
@@ -312,10 +314,6 @@ impl LimitOrderBook {
             return 0;
         }
 
-        if self.buy_side.is_empty() {
-            return 0;
-        }
-
         let mut best_bid = self.buy_side.peek().unwrap().clone();
         while ord.amount > 0 && !self.buy_side.is_empty() && ord.limit_price <= best_bid.limit_price
         {
@@ -342,10 +340,6 @@ impl LimitOrderBook {
 
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return 0;
-        }
-
-        if self.buy_side.is_empty() {
             return 0;
         }
 

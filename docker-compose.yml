@@ -1,0 +1,49 @@
+version: '3'
+services:
+  client_build:
+    image: client
+    command: ['echo', 'Build completed']
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile
+    
+  request-creator-server:
+    image: client
+    depends_on:
+    - client_build
+    command: ['make', 'run-rs']
+    networks:
+      - frontend
+    ports:
+      - "8081"
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+  request-creator:
+    image: client
+    stdin_open: true
+    tty: true
+    networks:
+      - frontend
+    depends_on:
+    - client_build
+    - request-creator-server
+    command: ['make', 'run-rc']
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+  price-display:
+    image: client
+    stdin_open: true
+    tty: true
+    depends_on:
+    - client_build
+    command: ['make', 'run-pd']
+    volumes:
+      - ./client/cmd:/usr/src/app/cmd
+      - ./client/internal:/usr/src/app/internal
+
+networks:
+  frontend:

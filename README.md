@@ -4,21 +4,51 @@
 
 ## About
 
-- MATDAQ is a stock exchange system developed in Rust and Go!
+- MATDAQ is a stock exchange system developed in Rust and Go
+
+## Building and Running
+
+- Use `docker-compose` to build and run the project
+
+```bash
+  $ docker-compose up -d 
+```
+
+- To connect to a specific client run 
+  - `request-creator`
+    ```bash
+      $ docker attach 2022_matdaq-request-creator-1
+    ```
+  - `price-display`
+    ```bash
+      $ docker attach 2022_matdaq-price-display-1
+    ```
+
+- To trigger a rebuild of images use
+
+```bash
+  $ docker-compose up -d --build
+```
+
+- To stop containers and tear down the infrastructure
+
+```bash $ 
+  docker-compose down
+```
 
 ## Dev setup
 
 ### Prerequisites
 
-- TODO: add specific Rust and Go versions
+- Install `docker` and `docker-compose`
 
 ### Setup
 
 - Navigate to the `dev` folder and run the setup script in order to properly configure your environment 
 
 ```bash
-   $ cd dev 
-   $ ./setup.sh
+  $ cd dev 
+  $ ./setup.sh
 ```
 - Currently developed only on `Linux`
 

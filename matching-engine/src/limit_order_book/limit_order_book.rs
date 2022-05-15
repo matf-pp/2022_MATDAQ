@@ -10,6 +10,7 @@ use rand_distr::num_traits::ToPrimitive;
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashMap};
 
+#[derive(Clone)]
 pub struct LimitOrderBook {
     buy_side: BinaryHeap<Order>,
     sell_side: BinaryHeap<Reverse<Order>>,

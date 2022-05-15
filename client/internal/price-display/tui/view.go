@@ -2,32 +2,32 @@ package tui
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
-func intArrayToString(l []int32) string {
-	s := ""
-	for i := 0; i < 10 && i < len(l); i++ {
-		s1 := fmt.Sprintf("%d", l[i])
-		s += s1 + "\n"
+func orderToString(orders []Order) (string, string) {
+	prices := ""
+	amount := ""
+	for i := 0; i < 10 && i < len(orders); i++ {
+		prices += "" + fmt.Sprintf("%d", orders[i].price) + "\n"
+		amount += "" + fmt.Sprintf("%d", orders[i].orderQty) + "\n"
 	}
-
-	return s
-}
-
-func uintArrayToString(l []uint32) string {
-	s := ""
-	for i := 0; i < 10 && i < len(l); i++ {
-		s1 := fmt.Sprintf("%d", l[i])
-		s += s1 + "\n"
-	}
-
-	return s
+	return prices, amount
 }
 
 func (m *Model) View() string {
-
+	s := m.stocks[m.selectedStockKey]
+	fmt.Println("stock", s)
+	sort.Slice(s.buySide, func(i, j int) bool {
+		return s.buySide[i].price < s.buySide[j].price
+	})
+	buyPrices, buyAmount := orderToString(s.buySide)
+	sort.Slice(s.sellSide, func(i, j int) bool {
+		return s.sellSide[i].price > s.sellSide[j].price
+	})
+	sellPrices, sellAmount := orderToString(s.sellSide)
 	var (
 		header = lipgloss.NewStyle().
 			Height(1).
@@ -39,7 +39,7 @@ func (m *Model) View() string {
 			Foreground(lipgloss.Color("#FAFAFA")).
 			Render("MATDAQ")
 
-		style1 = lipgloss.NewStyle().
+		style = lipgloss.NewStyle().
 			PaddingLeft(1).
 			PaddingRight(1).
 			BorderStyle(lipgloss.NormalBorder()).
@@ -82,38 +82,38 @@ func (m *Model) View() string {
 					Align(lipgloss.Center).
 					Height((m.height - 2) / 3).
 					Width((m.width - 10) / 4).
-					Render(intArrayToString(m.buyPrice))
+					Render(buyPrices)
 
 		renderedBuyBoxAmounts = lipgloss.NewStyle().
 					Foreground(lipgloss.Color("150")).
 					Align(lipgloss.Center).
 					Height((m.height - 2) / 3).
 					Width((m.width - 10) / 4).
-					Render(uintArrayToString(m.buyAmount))
+					Render(buyAmount)
 
 		renderedSellBoxPrices = lipgloss.NewStyle().
 					Foreground(lipgloss.Color("9")).
 					Align(lipgloss.Center).
 					Height((m.height - 2) / 3).
 					Width((m.width - 10) / 4).
-					Render(intArrayToString(m.sellPrice))
+					Render(sellPrices)
 
 		renderedSellBoxAmounts = lipgloss.NewStyle().
 					Foreground(lipgloss.Color("9")).
 					Align(lipgloss.Center).
 					Height((m.height - 2) / 3).
 					Width((m.width - 10) / 4).
-					Render(uintArrayToString(m.sellAmount))
+					Render(sellAmount)
 	)
 
-	leftBox := style1.Render(m.list.View())
+	leftBox := style.Render(m.stockList.View())
 	buyBoxPrices := lipgloss.JoinVertical(lipgloss.Left, priceStyle, renderedBuyBoxPrices)
 	buyBoxAmount := lipgloss.JoinVertical(lipgloss.Left, amountStyle, renderedBuyBoxAmounts)
 	sellBoxPrices := lipgloss.JoinVertical(lipgloss.Left, priceStyle, renderedSellBoxPrices)
 	sellBoxAmount := lipgloss.JoinVertical(lipgloss.Left, amountStyle, renderedSellBoxAmounts)
 	boyBox := rightBoxBuySideStyle.Render(lipgloss.JoinHorizontal(lipgloss.Left, buyBoxPrices, buyBoxAmount))
 	sellBox := rightBoxSellSideStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, sellBoxPrices, sellBoxAmount))
-	rightBox := style1.Render(lipgloss.JoinVertical(lipgloss.Left, sellBox, boyBox))
+	rightBox := style.Render(lipgloss.JoinVertical(lipgloss.Left, sellBox, boyBox))
 	main := lipgloss.JoinHorizontal(lipgloss.Top, leftBox, rightBox)
 	return lipgloss.JoinVertical(lipgloss.Left, header, main)
 }

@@ -1,82 +1,34 @@
 package tui
 
 import (
-	nos "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
-	"sort"
-
 	"github.com/charmbracelet/bubbles/list"
+	api "github.com/matf-pp/2022_MATDAQ/api/matching-engine"
 )
 
-type order struct {
+type Order struct {
 	price    int32
 	orderQty uint32
-	side     nos.SideValues
+	side     api.SecurityOrder_OrderSide
 }
 
-type stock struct {
+type Stock struct {
 	title       string
 	description string
-	stockId     int32
-	buySide     []order
-	sellSide    []order
-	// will be deleted later
-	sellPrices []int32
-	sellAmount []uint32
-	buyPrices  []int32
-	buyAmount  []uint32
+	stockId     uint32
+	buySide     []Order
+	sellSide    []Order
 }
 
-func (s stock) GetBuySide() ([]int32, []uint32) {
-	buyPrices := []int32{}
-	buyAmounts := []uint32{}
-
-	sort.Slice(s.buySide, func(i, j int) bool {
-		return s.buySide[i].price > s.buySide[j].price
-	})
-
-	for _, x := range s.buySide {
-		buyPrices = append(buyPrices, x.price)
-		buyAmounts = append(buyAmounts, x.orderQty)
-	}
-	return buyPrices, buyAmounts
-}
-
-func (s stock) GetSellSide() ([]int32, []uint32) {
-	sellPrices := []int32{}
-	sellAmounts := []uint32{}
-
-	sort.Slice(s.sellSide, func(i, j int) bool {
-		return s.sellSide[i].price < s.sellSide[j].price
-	})
-
-	for _, x := range s.sellSide {
-		sellPrices = append(sellPrices, x.price)
-		sellAmounts = append(sellAmounts, x.orderQty)
-	}
-	// reverse order
-	for i, j := 0, len(sellPrices)-1; i < j; i, j = i+1, j-1 {
-		sellPrices[i], sellPrices[j] = sellPrices[j], sellPrices[i]
-		sellAmounts[i], sellAmounts[j] = sellAmounts[j], sellAmounts[i]
-	}
-
-	return sellPrices, sellAmounts
-}
-
-func (s stock) FilterValue() string {
-	return s.Title()
-}
-
-func (s stock) Title() string       { return s.title }
-func (s stock) Description() string { return s.description }
+func (s Stock) FilterValue() string { return s.Title() }
+func (s Stock) Title() string       { return s.title }
+func (s Stock) Description() string { return s.description }
 
 type Model struct {
-	list         list.Model
-	stocks       [NUM_OF_STOCKS]stock
-	sellPrice    []int32
-	sellAmount   []uint32
-	buyPrice     []int32
-	buyAmount    []uint32
-	choice       string
+	stockList        list.Model
+	stocks           map[string]Stock
+	stockIdIndex     map[uint32]string
+	selectedStockKey string
+
 	height       int
 	width        int
 	windowHeight int
@@ -84,14 +36,26 @@ type Model struct {
 }
 
 func New() Model {
-	d := list.NewDefaultDelegate()
-	l := list.New(StocksList, d, 0, 0)
-	l.Title = "Stocks"
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(false)
+	stockIdIndex := make(map[uint32]string)
+	stocks := make(map[string]Stock)
+	stockListData := make([]list.Item, 0, len(STOCK_DATA))
+	for i, stock := range STOCK_DATA {
+		// TODO: this should be set in data
+		stock.stockId = uint32(i + 1)
+
+		stockIdIndex[stock.stockId] = stock.title
+		stocks[stock.title] = stock
+		stockListData = append(stockListData, list.Item(stock))
+	}
+
+	stockList := list.New(stockListData, list.NewDefaultDelegate(), 0, 0)
+	stockList.Title = "Stocks"
+	stockList.SetShowStatusBar(false)
+	stockList.SetFilteringEnabled(false)
 
 	return Model{
-		list:   l,
-		stocks: StocksArray,
+		stocks:       stocks,
+		stockList:    stockList,
+		stockIdIndex: stockIdIndex,
 	}
 }

@@ -8,7 +8,9 @@ pub mod matching_engine {
     tonic::include_proto!("matching_engine");
 }
 
-use matching_engine::{CreateOrderRequest, PublishOrderResponse, PublishTradeResponse};
+use matching_engine::{
+    CreateOrderRequest, PublishOrderResponse, PublishTradeResponse, SecurityOrder,
+};
 
 use tonic::Status;
 
@@ -25,14 +27,15 @@ use std::time::UNIX_EPOCH;
 pub type SenderChannel<T> = Sender<Result<T, Status>>;
 pub type ReceiverChannel<T> = Receiver<Result<T, Status>>;
 
-pub struct LimitOrderBookManager<'a, 'b> {
+#[derive(Clone)]
+pub struct LimitOrderBookManager {
     order_books: HashMap<SecurityId, LimitOrderBook>,
-    trade_channel_senders: Vec<&'a SenderChannel<PublishTradeResponse>>,
-    order_channel_senders: Vec<&'b SenderChannel<PublishOrderResponse>>,
+    trade_channel_senders: Vec<Box<SenderChannel<PublishTradeResponse>>>,
+    order_channel_senders: Vec<Box<SenderChannel<PublishOrderResponse>>>,
 }
 
-impl<'a, 'b> LimitOrderBookManager<'a, 'b> {
-    pub fn new() -> LimitOrderBookManager<'a, 'b> {
+impl LimitOrderBookManager {
+    pub fn new() -> LimitOrderBookManager {
         // TODO: setup all limit order books
         LimitOrderBookManager {
             order_books: HashMap::from([
@@ -45,11 +48,11 @@ impl<'a, 'b> LimitOrderBookManager<'a, 'b> {
         }
     }
 
-    pub fn add_trade_channel_sender(&mut self, sender: &'a SenderChannel<PublishTradeResponse>) {
+    pub fn add_trade_channel_sender(&mut self, sender: Box<SenderChannel<PublishTradeResponse>>) {
         self.trade_channel_senders.push(sender);
     }
 
-    pub fn add_order_channel_sender(&mut self, sender: &'b SenderChannel<PublishOrderResponse>) {
+    pub fn add_order_channel_sender(&mut self, sender: Box<SenderChannel<PublishOrderResponse>>) {
         self.order_channel_senders.push(sender);
     }
 
@@ -94,8 +97,42 @@ impl<'a, 'b> LimitOrderBookManager<'a, 'b> {
         }
 
         if let Some(order_book) = self.order_books.get_mut(&security_id) {
-            println!("Added order with security_id: {}", security_id);
-            order_book.add_order(order);
+            if order_book.is_aggressive(&order) {
+                println!("Executed order with security_id: {}", security_id);
+                // Send request to update user's money and return
+                let _trade_price = order_book.execute_order(order);
+                // request_money_update(order.sender_id, trade_price)
+            } else {
+                println!("Added order with security_id: {}", security_id);
+                order_book.add_order(order);
+                self.clone().notify_order_creation(order);
+            }
         }
+    }
+
+    // TODO: copying is abysmally slow
+    pub fn notify_order_creation(self, order: Order) {
+        tokio::spawn(async move {
+            println!("Notifying order creation");
+            for tx in self.order_channel_senders {
+                let order_quantity = order.amount;
+                let order_side = match order.side {
+                    Side::Buy => 0,
+                    Side::Sell => 1,
+                };
+                let price = order.limit_price;
+                let security_id = order.security_id;
+
+                let response = PublishOrderResponse {
+                    security_order: Some(SecurityOrder {
+                        order_quantity,
+                        order_side,
+                        price,
+                        security_id,
+                    }),
+                };
+                tx.send(Ok(response)).await.unwrap();
+            }
+        });
     }
 }

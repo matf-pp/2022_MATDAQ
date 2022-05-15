@@ -14,7 +14,8 @@ import (
 	new_order_single "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
 
-const HOST_NAME string = "request-creator-server:8081"
+// const HOST_NAME string = "request-creator-server:8081"
+const HOST_NAME string = "127.0.0.1:8081"
 
 func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn, client api.MatchingEngineClient) {
 	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())

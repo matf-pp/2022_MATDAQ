@@ -72,7 +72,7 @@ services:
       dockerfile: ./matching-engine/Dockerfile
     stdin_open: true
     tty: true
-    command: ./target/release/matching-engine
+    command: ./target/release/grpc-server
     ports:
       - "10000:10000"
     volumes:

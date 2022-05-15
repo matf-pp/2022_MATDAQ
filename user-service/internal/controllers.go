@@ -12,7 +12,8 @@ var Rdb *redis.Client
 
 func InitRedis() {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: "127.0.0.1:6379",
+		// Addr: "redis:6379",
 	})
 }
 

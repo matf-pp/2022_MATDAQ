@@ -19,12 +19,12 @@ pub mod matching_engine {
     tonic::include_proto!("matching_engine");
 }
 
-pub struct MatchingEngineService<'a, 'b> {
-    order_book_manager: Arc<Mutex<LimitOrderBookManager<'a, 'b>>>,
+pub struct MatchingEngineService {
+    order_book_manager: Arc<Mutex<LimitOrderBookManager>>,
 }
 
 #[tonic::async_trait]
-impl MatchingEngine for MatchingEngineService<'static, 'static> {
+impl MatchingEngine for MatchingEngineService {
     async fn create_order(
         &self,
         request: Request<CreateOrderRequest>,
@@ -33,6 +33,7 @@ impl MatchingEngine for MatchingEngineService<'static, 'static> {
             .lock()
             .unwrap()
             .create_order(request.into_inner());
+
         Ok(Response::new(CreateOrderResponse::default()))
     }
 
@@ -46,27 +47,10 @@ impl MatchingEngine for MatchingEngineService<'static, 'static> {
             SenderChannel<PublishTradeResponse>,
             ReceiverChannel<PublishTradeResponse>,
         ) = mpsc::channel(4);
-        // orderBook.addChannel(tx)
-        tokio::spawn(async move {
-            for i in 1..4 {
-                let order_quantity: u32 = i * 10;
-                let order_side: i32 = security_order::OrderSide::Buy as i32;
-                let security_id: u32 = i;
-                let price: i32 = 1;
-                let trade = PublishTradeResponse {
-                    security_order: Some(SecurityOrder {
-                        order_side,
-                        price,
-                        security_id,
-                        order_quantity,
-                    }),
-                };
-                println!(" -> send {:?}", trade);
-                tx.send(Ok(trade)).await.unwrap();
-            }
-
-            println!("/// done sending");
-        });
+        self.order_book_manager
+            .lock()
+            .unwrap()
+            .add_trade_channel_sender(Box::new(tx));
 
         Ok(Response::new(ReceiverStream::new(rx)))
     }
@@ -77,23 +61,14 @@ impl MatchingEngine for MatchingEngineService<'static, 'static> {
         &self,
         _request: Request<PublishOrderRequest>,
     ) -> Result<Response<Self::PublishOrderCreationStream>, Status> {
-        let (tx, rx) = mpsc::channel(4);
-        tokio::spawn(async move {
-            for i in 1..4 {
-                let order = PublishOrderResponse {
-                    security_order: Some(SecurityOrder {
-                        order_side: 0,
-                        price: 0,
-                        security_id: i,
-                        order_quantity: i,
-                    }),
-                };
-                println!(" -> send {:?}", order);
-                tx.send(Ok(order)).await.unwrap();
-            }
-
-            println!("/// done sending");
-        });
+        let (tx, rx): (
+            SenderChannel<PublishOrderResponse>,
+            ReceiverChannel<PublishOrderResponse>,
+        ) = mpsc::channel(4);
+        self.order_book_manager
+            .lock()
+            .unwrap()
+            .add_order_channel_sender(Box::new(tx));
 
         Ok(Response::new(ReceiverStream::new(rx)))
     }
@@ -101,7 +76,8 @@ impl MatchingEngine for MatchingEngineService<'static, 'static> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let addr = "matching-engine:10000".parse().unwrap();
+    // let addr = "matching-engine:10000".parse().unwrap();
+    let addr = "127.0.0.1:10000".parse().unwrap();
 
     println!("MatchingEngineServer listening on: {}", addr);
 

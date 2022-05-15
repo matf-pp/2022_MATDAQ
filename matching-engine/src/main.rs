@@ -17,6 +17,7 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 fn main() {
+
     let num_of_orders = 300;
     let mut rng = rand::thread_rng();
     let mut prices = Vec::with_capacity(num_of_orders);

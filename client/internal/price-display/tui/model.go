@@ -54,7 +54,8 @@ func New() Model {
 	stockList.SetFilteringEnabled(false)
 
 	return Model{
-		stocks:    stocks,
-		stockList: stockList,
+		stocks:       stocks,
+		stockList:    stockList,
+		stockIdIndex: stockIdIndex,
 	}
 }

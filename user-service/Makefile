@@ -2,7 +2,9 @@
 
 all: build
 
-bin/user-server: cmd/user-server/main.go
+USER_SERVICE_SRC = $(shell find ./internal/ -type f -name '*.go')
+ 
+bin/user-server: cmd/user-server/main.go $(USER_SERVICE_SRC)
 	go build -o $@ $<
 
 build: bin/user-server

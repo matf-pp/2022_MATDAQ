@@ -37,9 +37,7 @@ type side struct {
 	description string
 }
 
-func (s side) FilterValue() string {
-	return ""
-}
+func (s side) FilterValue() string { return "" }
 
 func (s side) Title() string       { return s.title }
 func (s side) Description() string { return s.description }
@@ -50,9 +48,7 @@ type orderType struct {
 }
 
 // retuns empty string because we dont search on OrderType value
-func (ot orderType) FilterValue() string {
-	return ""
-}
+func (ot orderType) FilterValue() string { return "" }
 
 func (ot orderType) Title() string       { return ot.title }
 func (ot orderType) Description() string { return ot.description }
@@ -107,7 +103,6 @@ func New(conn io.Writer) Model {
 	l.Title = "Stocks"
 	l.SetShowStatusBar(false)
 
-	// order side
 	sides := []list.Item{
 		side{title: "Buy", description: "Buy side"},
 		side{title: "Sell", description: "Sell side"},
@@ -121,7 +116,6 @@ func New(conn io.Writer) Model {
 	s.SetShowPagination(false)
 	s.SetShowStatusBar(false)
 
-	// order type
 	orderTypes := []list.Item{
 		orderType{title: "Limit Order", description: "Limit order is..."},
 		orderType{title: "Market Order", description: "Market order is..."},
@@ -135,7 +129,6 @@ func New(conn io.Writer) Model {
 	ot.SetShowPagination(false)
 	ot.SetShowStatusBar(false)
 
-	// order
 	orderBtn := []list.Item{
 		orderType{title: "Order", description: "Send order request"},
 	}

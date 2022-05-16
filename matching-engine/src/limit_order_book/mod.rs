@@ -4,3 +4,4 @@ pub mod order;
 pub mod order_side;
 pub mod order_type;
 pub mod request_handlers;
+mod trade;

@@ -5,6 +5,7 @@ use crate::limit_order_book::{
     order_side::Side,
     order_type::OrderType,
     request_handlers::{request_money_update, request_new_order, request_trade},
+    trade::Trade,
 };
 use rand_distr::num_traits::ToPrimitive;
 use std::cmp::Reverse;
@@ -132,8 +133,8 @@ impl LimitOrderBook {
         request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
     }
 
-    // Executes the given order and returns money that was traded
-    pub fn execute_order(&mut self, order: Order) -> i32 {
+    // Executes the given order and returns orders that were matched
+    pub fn execute_order(&mut self, order: Order) -> Vec<Trade> {
         let mut ord = order.clone();
 
         match order.side {
@@ -162,8 +163,9 @@ impl LimitOrderBook {
 
        It also sends request to User-Service to update the money of the user that placed curr_best order
     */
-    fn process_curr_order(&mut self, curr_best: &mut Order, ord: &mut Order) -> i32 {
+    fn process_curr_order(&mut self, curr_best: &mut Order, ord: &mut Order) -> Trade {
         let money_amount: i32;
+        let trade: Trade;
         let curr_best_price: i32;
 
         /*
@@ -177,11 +179,19 @@ impl LimitOrderBook {
             if ord.order_type == OrderType::Market && ord.side == Side::Buy {
                 self.buy_side.push(*ord);
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                return 0;
+                return Trade {
+                    side: Side::Buy,
+                    amount: 0,
+                    security_id: 0,
+                };
             } else if ord.order_type == OrderType::Market && ord.side == Side::Sell {
                 self.sell_side.push(Reverse(*ord));
                 request_new_order(ord.security_id, ord.limit_price, ord.amount, ord.side);
-                return 0;
+                return Trade {
+                    side: Side::Buy,
+                    amount: 0,
+                    security_id: 0,
+                };
             } else {
                 curr_best_price = ord.limit_price;
             }
@@ -212,12 +222,22 @@ impl LimitOrderBook {
             match curr_best.side {
                 Side::Buy => {
                     request_money_update(curr_best.sender_id, -money_amount);
-                    request_trade(curr_best.security_id, curr_best.amount, Side::Buy);
+                    // request_trade(curr_best.security_id, curr_best.amount, Side::Sell);
+                    trade = Trade {
+                        side: curr_best.side,
+                        security_id: curr_best.security_id,
+                        amount: curr_best.amount,
+                    };
                     self.buy_side.pop();
                 }
                 Side::Sell => {
                     request_money_update(curr_best.sender_id, money_amount);
-                    request_trade(curr_best.security_id, curr_best.amount, Side::Sell);
+                    request_trade(curr_best.security_id, curr_best.amount, Side::Buy);
+                    trade = Trade {
+                        side: curr_best.side,
+                        security_id: curr_best.security_id,
+                        amount: curr_best.amount,
+                    };
                     self.sell_side.pop();
                 }
             }
@@ -228,11 +248,21 @@ impl LimitOrderBook {
             if ord.side == Side::Buy {
                 request_money_update(curr_best.sender_id, money_amount);
                 request_trade(curr_best.security_id, ord.amount, Side::Buy);
+                trade = Trade {
+                    side: curr_best.side,
+                    security_id: curr_best.security_id,
+                    amount: ord.amount,
+                };
                 self.sell_side.pop();
                 self.sell_side.push(Reverse(*curr_best));
             } else {
                 request_money_update(curr_best.sender_id, -money_amount);
                 request_trade(curr_best.security_id, ord.amount, Side::Sell);
+                trade = Trade {
+                    side: curr_best.side,
+                    security_id: curr_best.security_id,
+                    amount: ord.amount,
+                };
                 self.buy_side.pop();
                 self.buy_side.push(*curr_best);
             }
@@ -240,16 +270,16 @@ impl LimitOrderBook {
             self.orders.insert(curr_best.order_id, *curr_best);
         }
 
-        return money_amount;
+        return trade;
     }
 
-    fn execute_buy_limit_order(&mut self, ord: &mut Order) -> i32 {
-        let mut money_amount = 0;
+    fn execute_buy_limit_order(&mut self, ord: &mut Order) -> Vec<Trade> {
+        let mut trades: Vec<Trade> = Vec::new();
 
         // order already exists in a LOB
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return money_amount;
+            return trades;
         }
 
         let mut best_ask = self.sell_side.peek().unwrap().0.clone();
@@ -257,8 +287,8 @@ impl LimitOrderBook {
             && !self.sell_side.is_empty()
             && ord.limit_price >= best_ask.limit_price
         {
-            // we are doing -= because we are buying so our money should go down
-            money_amount -= self.process_curr_order(&mut best_ask, ord);
+            let curr_trade = self.process_curr_order(&mut best_ask, ord);
+            trades.push(curr_trade);
 
             if !self.sell_side.is_empty() {
                 best_ask = self.sell_side.peek().unwrap().0.clone();
@@ -273,24 +303,21 @@ impl LimitOrderBook {
             self.orders.insert(ord.order_id, ord_clone);
         }
 
-        return money_amount;
+        return trades;
     }
 
-    fn execute_buy_market_order(&mut self, ord: &mut Order) -> i32 {
-        let mut money_amount = 0;
+    fn execute_buy_market_order(&mut self, ord: &mut Order) -> Vec<Trade> {
+        let mut trades: Vec<Trade> = Vec::new();
 
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return 0;
+            return trades;
         }
 
         let mut best_ask = self.sell_side.peek().unwrap().0.clone();
         while ord.amount > 0 && !self.sell_side.is_empty() {
-            money_amount -= self.process_curr_order(&mut best_ask, ord);
-
-            if money_amount == 0 {
-                return 0;
-            }
+            let curr_trade = self.process_curr_order(&mut best_ask, ord);
+            trades.push(curr_trade);
 
             if !self.sell_side.is_empty() {
                 best_ask = self.sell_side.peek().unwrap().0.clone();
@@ -304,22 +331,22 @@ impl LimitOrderBook {
             self.orders.insert(ord.order_id, ord_clone);
         }
 
-        return money_amount;
+        return trades;
     }
 
-    fn execute_sell_limit_order(&mut self, ord: &mut Order) -> i32 {
-        let mut money_amount = 0;
+    fn execute_sell_limit_order(&mut self, ord: &mut Order) -> Vec<Trade> {
+        let mut trades: Vec<Trade> = Vec::new();
 
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return 0;
+            return trades;
         }
 
         let mut best_bid = self.buy_side.peek().unwrap().clone();
         while ord.amount > 0 && !self.buy_side.is_empty() && ord.limit_price <= best_bid.limit_price
         {
-            // money_amount is positive because we are selling stock
-            money_amount += self.process_curr_order(&mut best_bid, ord);
+            let curr_trade = self.process_curr_order(&mut best_bid, ord);
+            trades.push(curr_trade);
 
             if !self.buy_side.is_empty() {
                 best_bid = self.buy_side.peek().unwrap().clone();
@@ -333,24 +360,21 @@ impl LimitOrderBook {
             self.orders.insert(ord.order_id, ord_clone);
         }
 
-        return money_amount;
+        return trades;
     }
 
-    fn execute_sell_market_order(&mut self, ord: &mut Order) -> i32 {
-        let mut money_amount = 0;
+    fn execute_sell_market_order(&mut self, ord: &mut Order) -> Vec<Trade> {
+        let mut trades: Vec<Trade> = Vec::new();
 
         if self.orders.contains_key(&ord.order_id) {
             println!("Order already exists");
-            return 0;
+            return trades;
         }
 
         let mut best_bid = self.buy_side.peek().unwrap().clone();
         while ord.amount > 0 && !self.buy_side.is_empty() {
-            money_amount += self.process_curr_order(&mut best_bid, ord);
-
-            if money_amount == 0 {
-                return 0;
-            }
+            let curr_trade = self.process_curr_order(&mut best_bid, ord);
+            trades.push(curr_trade);
 
             if !self.buy_side.is_empty() {
                 best_bid = self.buy_side.peek().unwrap().clone();
@@ -364,6 +388,6 @@ impl LimitOrderBook {
             self.orders.insert(ord.order_id, ord_clone);
         }
 
-        return money_amount;
+        return trades;
     }
 }

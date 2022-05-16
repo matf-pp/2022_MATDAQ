@@ -19,6 +19,7 @@ use crate::limit_order_book::{
     order::{Order, SecurityId},
     order_side::Side,
     order_type::OrderType,
+    trade::Trade,
 };
 
 use std::time::SystemTime;
@@ -99,15 +100,40 @@ impl LimitOrderBookManager {
         if let Some(order_book) = self.order_books.get_mut(&security_id) {
             if order_book.is_aggressive(&order) {
                 println!("Executed order with security_id: {}", security_id);
-                // Send request to update user's money and return
-                let _trade_price = order_book.execute_order(order);
-                // request_money_update(order.sender_id, trade_price)
+                let trades = order_book.execute_order(order);
+                for trade in trades {
+                    self.clone().notify_trade_happened(trade);
+                }
             } else {
                 println!("Added order with security_id: {}", security_id);
                 order_book.add_order(order);
                 self.clone().notify_order_creation(order);
             }
         }
+    }
+
+    pub fn notify_trade_happened(self, trade: Trade) {
+        tokio::spawn(async move {
+            println!("Notifying trade happened");
+            for tx in self.trade_channel_senders {
+                let order_quantity = trade.amount;
+                let order_side = match trade.side {
+                    Side::Buy => 0,
+                    Side::Sell => 1,
+                };
+                let security_id = trade.security_id;
+
+                let response = PublishTradeResponse {
+                    security_order: Some(SecurityOrder {
+                        order_quantity,
+                        order_side,
+                        price: 0,
+                        security_id,
+                    }),
+                };
+                tx.send(Ok(response)).await.unwrap();
+            }
+        });
     }
 
     // TODO: copying is abysmally slow

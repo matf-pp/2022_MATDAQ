@@ -84,6 +84,48 @@ func handleOrderResponse(m *Model, orderResponse *matching_engine.OrderResponse)
 }
 
 func handleTradeResponse(m *Model, tradeResponse *matching_engine.TradeResponse) (*Model, tea.Cmd) {
+	security := tradeResponse.SecurityOrder
 
+	fmt.Println("trade response:", security)
+
+	stockKey := m.stockIdIndex[security.SecurityId]
+	stock := m.stocks[stockKey]
+
+	side := security.OrderSide
+	orderQty := security.OrderQuantity
+
+	bestAskIndex, bestBidIndex := findTopOrders(stock)
+
+	if side == api.SecurityOrder_Buy {
+		stock.buySide = updateOrderQty(stock.buySide, orderQty, bestBidIndex)
+	} else {
+		stock.sellSide = updateOrderQty(stock.sellSide, orderQty, bestAskIndex)
+	}
+	m.stocks[stockKey] = stock
 	return m, nil
+}
+
+func updateOrderQty(stock []Order, orderQty uint32, idx int) []Order {
+	stock[idx].orderQty -= orderQty
+	if stock[idx].orderQty != 0 {
+		return stock
+	}
+	stock[idx] = stock[len(stock)-1]
+	return stock[:len(stock)-1]
+}
+
+func findTopOrders(a Stock) (bestAskIndex int, bestBidIndex int) {
+	bestAskIndex = 0
+	bestBidIndex = 0
+	for i, value := range a.buySide {
+		if value.price > a.buySide[bestBidIndex].price {
+			bestBidIndex = i
+		}
+	}
+	for i, value := range a.sellSide {
+		if value.price < a.sellSide[bestAskIndex].price {
+			bestAskIndex = i
+		}
+	}
+	return bestAskIndex, bestBidIndex
 }

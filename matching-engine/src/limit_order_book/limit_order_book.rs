@@ -46,6 +46,25 @@ impl LimitOrderBook {
         return str;
     }
 
+    pub fn print_book(&self) {
+        let sell_side = self.sell_side.clone();
+        let sorted_sells = sell_side.into_sorted_vec();
+        let buy_side = self.buy_side.clone();
+        let mut sorted_buys = buy_side.into_sorted_vec();
+        sorted_buys.reverse();
+        println!("----------------------------------------------------------");
+        println!("Sell Side:");
+        for ord in sorted_sells {
+            println!("\x1b[31m{}\x1b[0m", ord.0);
+        }
+        println!("----------------------------------------------------------");
+        println!("Buy Side:");
+        for ord in sorted_buys {
+            println!("\x1b[32m{}\x1b[0m", ord);
+        }
+        println!("----------------------------------------------------------");
+    }
+
     /*
        Checks if the order is aggressive
 

@@ -107,7 +107,7 @@ impl LimitOrderBook {
            Here we check the order's type(Market/Limit) and order's side(Buy/Sell)
            and based on that we add the given order
         */
-        let mut ord = order.clone();
+        let ord = order.clone();
         match order.side {
             Side::Buy => match order.order_type {
                 OrderType::Limit => {
@@ -317,6 +317,9 @@ impl LimitOrderBook {
         let mut best_ask = self.sell_side.peek().unwrap().0.clone();
         while ord.amount > 0 && !self.sell_side.is_empty() {
             let curr_trade = self.process_curr_order(&mut best_ask, ord);
+            if curr_trade.amount == 0 && curr_trade.security_id == 0 {
+                return trades;
+            }
             trades.push(curr_trade);
 
             if !self.sell_side.is_empty() {
@@ -374,6 +377,9 @@ impl LimitOrderBook {
         let mut best_bid = self.buy_side.peek().unwrap().clone();
         while ord.amount > 0 && !self.buy_side.is_empty() {
             let curr_trade = self.process_curr_order(&mut best_bid, ord);
+            if curr_trade.amount == 0 && curr_trade.security_id == 0 {
+                return trades;
+            }
             trades.push(curr_trade);
 
             if !self.buy_side.is_empty() {

@@ -9,8 +9,8 @@ mod limit_order_book;
 use crate::limit_order_book::limit_order_book_manager::{
     matching_engine::matching_engine_server::{MatchingEngine, MatchingEngineServer},
     matching_engine::{
-        security_order, CreateOrderRequest, CreateOrderResponse, PublishOrderRequest,
-        PublishOrderResponse, PublishTradeRequest, PublishTradeResponse, SecurityOrder,
+        CreateOrderRequest, CreateOrderResponse, PublishOrderRequest, PublishOrderResponse,
+        PublishTradeRequest, PublishTradeResponse,
     },
     LimitOrderBookManager, ReceiverChannel, SenderChannel,
 };

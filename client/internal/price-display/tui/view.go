@@ -19,9 +19,8 @@ func orderToString(orders []Order) (string, string) {
 
 func (m *Model) View() string {
 	s := m.stocks[m.selectedStockKey]
-	fmt.Println("stock", s)
 	sort.Slice(s.buySide, func(i, j int) bool {
-		return s.buySide[i].price < s.buySide[j].price
+		return s.buySide[i].price > s.buySide[j].price
 	})
 	buyPrices, buyAmount := orderToString(s.buySide)
 	sort.Slice(s.sellSide, func(i, j int) bool {

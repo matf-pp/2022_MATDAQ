@@ -10,7 +10,6 @@ use crate::limit_order_book::{
     order_side::Side,
     order_type::OrderType,
 };
-use limit_order_book::request_handlers::request_money_update;
 use rand::Rng;
 use std::collections::HashMap;
 use std::time::SystemTime;

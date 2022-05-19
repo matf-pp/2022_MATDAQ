@@ -26,14 +26,12 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 		log.Fatalf("did not connect: %s", err)
 	}
 	matchingEngineClient := api.NewMatchingEngineClient(conn)
-	log.Println("Connected to the matching engine GRPC server")
 
 	publishOrderRequest := &api.PublishOrderRequest{}
 	orderResponseStream, err := matchingEngineClient.PublishOrderCreation(context.Background(), publishOrderRequest)
 	if err != nil {
 		log.Fatalf("Error when calling PublishOrderCreation: %s", err)
 	}
-	log.Println("Created order creation stream request")
 	go func() {
 		for {
 			orderResponse, err := orderResponseStream.Recv()
@@ -43,7 +41,6 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 			if err != nil {
 				log.Fatalf("%v.ListFeatures(_) = _, %v", matchingEngineClient, err)
 			}
-			log.Println("Got order: ", orderResponse)
 			orderResponses <- orderResponse
 		}
 	}()
@@ -63,7 +60,6 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 			if err != nil {
 				log.Fatalf("%v.ListFeatures(_) = _, %v", matchingEngineClient, err)
 			}
-			log.Println("Got trade: ", tradeResponse)
 			tradeResponses <- tradeResponse
 		}
 	}()

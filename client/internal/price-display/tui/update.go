@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	api "github.com/matf-pp/2022_MATDAQ/api/matching-engine"
 	matching_engine "github.com/matf-pp/2022_MATDAQ/client/internal/price-display/matching-engine"
@@ -77,16 +76,12 @@ func handleOrderResponse(m *Model, orderResponse *matching_engine.OrderResponse)
 	} else {
 		stock.sellSide = append(stock.sellSide, order)
 	}
-	//fmt.Println("stock handle", stock)
-	fmt.Println("stock key", stockKey)
 	m.stocks[stockKey] = stock
 	return m, nil
 }
 
 func handleTradeResponse(m *Model, tradeResponse *matching_engine.TradeResponse) (*Model, tea.Cmd) {
 	security := tradeResponse.SecurityOrder
-
-	fmt.Println("trade response:", security)
 
 	stockKey := m.stockIdIndex[security.SecurityId]
 	stock := m.stocks[stockKey]

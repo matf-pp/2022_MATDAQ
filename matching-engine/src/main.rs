@@ -17,7 +17,6 @@ use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
 fn main() {
-
     let num_of_orders = 300;
     let mut rng = rand::thread_rng();
     let mut prices = Vec::with_capacity(num_of_orders);
@@ -87,7 +86,7 @@ fn main() {
             if limit_ord_book.is_aggressive(&order) {
                 let ord = order.clone();
                 // Send request to update user's money and return
-                request_money_update(order.sender_id, limit_ord_book.execute_order(ord))
+                // request_money_update(order.sender_id, limit_ord_book.execute_order(ord))
             } else {
                 limit_ord_book.add_order(order);
             }

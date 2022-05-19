@@ -39,6 +39,7 @@ services:
     - client_build
     - matching-engine
     command: make run-pd
+    restart: on-failure
     volumes:
       - ./client/cmd:/usr/src/app/cmd
       - ./client/internal:/usr/src/app/internal
@@ -62,7 +63,7 @@ services:
   redis:
     image: redis:7.0-alpine
     ports:
-      - "6397"
+      - "6397:6397"
     command: redis-server
 
   matching-engine:
@@ -72,8 +73,8 @@ services:
       dockerfile: ./matching-engine/Dockerfile
     stdin_open: true
     tty: true
-    command: ./target/release/grpc-server
+    command: /bin/grpc-server
     ports:
       - "10000:10000"
     volumes:
-      - ./matching-engine/src:/usr/src/app/src
+      - ./matching-engine/src:/usr/src/matching-engine/src

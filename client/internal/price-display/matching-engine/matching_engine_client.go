@@ -21,18 +21,19 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	// conn, err := grpc.Dial(fmt.Sprintf("matching-engine:%d", PORT), opts...)
-	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%d", PORT), opts...)
+	conn, err := grpc.Dial(fmt.Sprintf("matching-engine:%d", PORT), opts...)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
 	matchingEngineClient := api.NewMatchingEngineClient(conn)
+	log.Println("Connected to the matching engine GRPC server")
 
 	publishOrderRequest := &api.PublishOrderRequest{}
 	orderResponseStream, err := matchingEngineClient.PublishOrderCreation(context.Background(), publishOrderRequest)
 	if err != nil {
 		log.Fatalf("Error when calling PublishOrderCreation: %s", err)
 	}
+	log.Println("Created order creation stream request")
 	go func() {
 		for {
 			orderResponse, err := orderResponseStream.Recv()
@@ -42,11 +43,12 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 			if err != nil {
 				log.Fatalf("%v.ListFeatures(_) = _, %v", matchingEngineClient, err)
 			}
-			log.Println(orderResponse)
+			log.Println("Got order: ", orderResponse)
 			orderResponses <- orderResponse
 		}
 	}()
 
+	log.Println("Created trade stream request")
 	publishTradeRequest := &api.PublishTradeRequest{}
 	tradeResponseStream, err := matchingEngineClient.PublishTrade(context.Background(), publishTradeRequest)
 	if err != nil {
@@ -61,7 +63,7 @@ func StartMatchingEngine(orderResponses chan *OrderResponse, tradeResponses chan
 			if err != nil {
 				log.Fatalf("%v.ListFeatures(_) = _, %v", matchingEngineClient, err)
 			}
-			log.Println(tradeResponse)
+			log.Println("Got trade: ", tradeResponse)
 			tradeResponses <- tradeResponse
 		}
 	}()
@@ -71,10 +73,8 @@ func HandleBubbleTea(p *tea.Program, orderResponses chan *OrderResponse, tradeRe
 	for {
 		select {
 		case orderResponse := <-orderResponses:
-			fmt.Println("handle", orderResponse)
 			p.Send(orderResponse)
 		case tradeResponse := <-tradeResponses:
-			fmt.Println("handle", tradeResponse)
 			p.Send(tradeResponse)
 		}
 	}

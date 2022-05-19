@@ -12,14 +12,13 @@ import (
 const PORT int = 9000
 
 func main() {
-
 	internal.InitRedis()
 
-	// lis, err := net.Listen("tcp", fmt.Sprintf("user-service:%d", PORT))
-	lis, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("user-service:%d", PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	log.Printf("Listening on port: %d", PORT)
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 	api.RegisterUserServer(grpcServer, internal.NewUserServer())

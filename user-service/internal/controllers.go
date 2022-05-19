@@ -2,9 +2,9 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis/v8"
 	api "github.com/matf-pp/2022_MATDAQ/api/user-service"
+	"log"
 )
 
 var Ctx = context.Background()
@@ -12,8 +12,7 @@ var Rdb *redis.Client
 
 func InitRedis() {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr: "127.0.0.1:6379",
-		// Addr: "redis:6379",
+		Addr: "redis:6379",
 	})
 }
 
@@ -26,7 +25,7 @@ func NewUserServer() *UserServerImpl {
 }
 
 func (s *UserServerImpl) LoginUser(ctx context.Context, req *api.LoginUserRequest) (*api.LoginUserResponse, error) {
-	fmt.Println(req)
+	log.Println("Login user: ", req)
 	if err := AddUser(req.Username, req.Money); err != nil {
 		return nil, err
 	}
@@ -34,6 +33,7 @@ func (s *UserServerImpl) LoginUser(ctx context.Context, req *api.LoginUserReques
 }
 
 func (s *UserServerImpl) DecreaseMoney(ctx context.Context, req *api.DecreaseMoneyRequest) (*api.DecreaseMoneyResponse, error) {
+	log.Println("Decrease money: ", req)
 	if err := DecreaseMoney(req.Username, req.MoneyAmount); err != nil {
 		return nil, err
 	}

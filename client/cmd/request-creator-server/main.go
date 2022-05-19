@@ -14,23 +14,25 @@ import (
 	new_order_single "github.com/matf-pp/2022_MATDAQ/client/pkg/new-order-single"
 )
 
-// const HOST_NAME string = "request-creator-server:8081"
-const HOST_NAME string = "127.0.0.1:8081"
+const HostName string = "request-creator-server:8081"
 
-func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn, client api.MatchingEngineClient) {
-	fmt.Printf("Serving %s\n", conn.RemoteAddr().String())
+func handleConnection(marshaller *new_order_single.SbeGoMarshaller, conn net.Conn, client api.MatchingEngineClient) {
+	log.Printf("New connection: %s\n", conn.RemoteAddr().String())
 	for {
 		var hdr new_order_single.SbeGoMessageHeader
-		hdr.Decode(m, conn)
-
-		fmt.Println("reading new order single")
-		var newOrderData new_order_single.NewOrderSingle
-		if err := newOrderData.Decode(m, conn, hdr.Version, hdr.BlockLength, false); err != nil {
-			fmt.Println("Order for NewOrderSingle failed.")
+		if err := hdr.Decode(marshaller, conn); err != nil {
+			log.Println("Failed decoding")
 			break
 		}
-		//	  Send request to Matching Engine
 
+		var newOrderData new_order_single.NewOrderSingle
+		if err := newOrderData.Decode(marshaller, conn, hdr.Version, hdr.BlockLength, false); err != nil {
+			fmt.Println("Reading NewOrderSingle failed.")
+			break
+		}
+		log.Println("Reading NewOrderSingle successful")
+
+		// Prepare data to be sent to the Matching Engine
 		orderTypeId := func() int {
 			if newOrderData.OrdType == new_order_single.OrderTypeReq.LimitOrder {
 				return 0
@@ -61,10 +63,9 @@ func handleConnection(m *new_order_single.SbeGoMarshaller, conn net.Conn, client
 
 		_, err := client.CreateOrder(context.Background(), loginUserReq)
 		if err != nil {
-			log.Fatalf("Error when calling CreateOrder: %s", err)
+			log.Printf("Error when calling CreateOrder: %s\n", err)
 		}
-
-		fmt.Println(newOrderData)
+		log.Println("Order created with data: ", newOrderData)
 	}
 	conn.Close()
 }
@@ -75,34 +76,33 @@ func createMatchingEngineClient() *api.MatchingEngineClient {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", GRPC_PORT), opts...)
+	conn, err := grpc.Dial(fmt.Sprintf("matching-engine:%d", GRPC_PORT), opts...)
 	if err != nil {
-		log.Fatalf("did not connect: %s", err)
+		log.Fatalf("Did not connect to matching-engine: %s", err)
 	}
 	matchingEngineClient := api.NewMatchingEngineClient(conn)
 
 	return &matchingEngineClient
 }
 
-// this is only example server, it will be removed later
 func main() {
 	matchingEngineClient := createMatchingEngineClient()
-	listener, err := net.Listen("tcp", HOST_NAME)
+	listener, err := net.Listen("tcp", HostName)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf(err.Error())
 		return
 	}
 	defer listener.Close()
 
-	m := new_order_single.NewSbeGoMarshaller()
+	marshaller := new_order_single.NewSbeGoMarshaller()
 
-	fmt.Println("listen")
+	log.Printf("Listening on %s\n", HostName)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		go handleConnection(m, conn, *matchingEngineClient)
+		go handleConnection(marshaller, conn, *matchingEngineClient)
 	}
 }

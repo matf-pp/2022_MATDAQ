@@ -76,8 +76,7 @@ impl MatchingEngine for MatchingEngineService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // let addr = "matching-engine:10000".parse().unwrap();
-    let addr = "127.0.0.1:10000".parse().unwrap();
+    let addr = "0.0.0.0:10000".parse().unwrap();
 
     println!("MatchingEngineServer listening on: {}", addr);
 

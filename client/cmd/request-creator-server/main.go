@@ -76,7 +76,7 @@ func createMatchingEngineClient() *api.MatchingEngineClient {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", GRPC_PORT), opts...)
+	conn, err := grpc.Dial(fmt.Sprintf("matching-engine:%d", GRPC_PORT), opts...)
 	if err != nil {
 		log.Fatalf("Did not connect to matching-engine: %s", err)
 	}

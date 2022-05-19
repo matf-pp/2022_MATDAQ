@@ -1,18 +1,16 @@
 # User service
 
-## TODO - Dimitrije
+## About
 
 - Role of the user service is to manage money for users that are participating 
 
 - Each user should have:
   - Unique id 
   - Money amount
-  - Something else?
 - User service should support:
   - Basic authentication
   - Getting money for some user
   - Decrement money amount for some user
-- For now implement each feature as an HTTP endpoint (e.g. REST)
 
 ## Redis setup
 
@@ -74,8 +72,6 @@ user-service
 ├── cmd/
 │   └── user-server/
 │       └── main.go
-├── pkg/
-│   └── README.md
 ├── go.mod
 ├── Makefile
 └── README.md
